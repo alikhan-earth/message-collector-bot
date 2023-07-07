@@ -1,0 +1,9 @@
+chats = []
+monitoring_chats = []
+black_list = []
+key_words = []
+stop_words = []
+bot_enabled = True
+duplicate_filter = True
+send_mode = 'forwarding'
+messages = []
