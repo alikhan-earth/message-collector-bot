@@ -6,15 +6,18 @@ import asyncio
 import threading
 import json
 from pprint import pprint
+from collections import Counter
 
 from telethon import TelegramClient, events
 from telethon import functions
+from telethon.tl.functions.channels import JoinChannelRequest
 
 import config
 from bot import *
 
 API_ID = os.environ['API_ID']
 API_HASH = os.environ['API_HASH']
+chats = config.chats[:]
 
 client = TelegramClient('session_name', API_ID, API_HASH)
 client.start()
@@ -32,6 +35,9 @@ async def get_chat_info(username):
 
 @client.on(events.NewMessage())
 async def handler(event):
+    for chat in set(chats) - set(config.chats):
+        await client(JoinChannelRequest(chat))
+
     if not config.bot_enabled:
         return
     
