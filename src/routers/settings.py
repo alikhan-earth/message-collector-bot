@@ -35,8 +35,7 @@ async def settings(callback: types.CallbackQuery):
     message = _get_settings_text()
     markup = _get_settings_kb()
 
-    await callback.message.edit_text(message, parse_mode='html', disable_web_page_preview=True)
-    await callback.message.edit_reply_markup(callback.inline_message_id, markup)
+    await callback.message.answer(message, parse_mode='html', reply_markup=markup, disable_web_page_preview=True)
 
 
 @router.callback_query(filters.Text('duplicates'))
@@ -45,8 +44,7 @@ async def duplicates(callback: types.CallbackQuery):
     message = _get_settings_text()
     markup = _get_settings_kb()
 
-    await callback.message.edit_text(message, parse_mode='html', disable_web_page_preview=True)
-    await callback.message.edit_reply_markup(callback.inline_message_id, markup)
+    await callback.message.answer(message, parse_mode='html', reply_markup=markup, disable_web_page_preview=True)
 
 
 @router.callback_query(filters.Text('bot'))
@@ -55,24 +53,21 @@ async def bot(callback: types.CallbackQuery):
     message = _get_settings_text()
     markup = _get_settings_kb()
 
-    await callback.message.edit_text(message, parse_mode='html', disable_web_page_preview=True)
-    await callback.message.edit_reply_markup(callback.inline_message_id, markup)
+    await callback.message.answer(message, parse_mode='html', reply_markup=markup, disable_web_page_preview=True)
 
 
 @router.callback_query(filters.Text('chats_settings'))
 async def chats_settings(callback: types.CallbackQuery):
-    await callback.message.edit_reply_markup(callback.inline_message_id, _get_chats_settings_kb())
+    await callback.message.answer(_get_settings_text(), parse_mode='html', reply_markup=_get_chats_settings_kb(), disable_web_page_preview=True)
 
 
 @router.callback_query(filters.Text('copy'))
 async def chats_settings(callback: types.CallbackQuery):
     config.send_mode = 'copy'
-    await callback.message.edit_text(_get_settings_text(), parse_mode='html', disable_web_page_preview=True)
-    await callback.message.edit_reply_markup(callback.inline_message_id, _get_chats_settings_kb())
+    await callback.message.answer(_get_settings_text(), parse_mode='html', reply_markup=_get_chats_settings_kb(), disable_web_page_preview=True)
 
 
 @router.callback_query(filters.Text('forwarding'))
 async def chats_settings(callback: types.CallbackQuery):
     config.send_mode = 'forwarding'
-    await callback.message.edit_text(_get_settings_text(), parse_mode='html', disable_web_page_preview=True)
-    await callback.message.edit_reply_markup(callback.inline_message_id, _get_chats_settings_kb())
+    await callback.message.answer(_get_settings_text(), parse_mode='html', reply_markup=_get_chats_settings_kb(), disable_web_page_preview=True)

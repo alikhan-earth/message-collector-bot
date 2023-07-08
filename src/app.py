@@ -35,7 +35,7 @@ async def get_chat_info(username):
 
 @client.on(events.NewMessage())
 async def handler(event):
-    for chat in set(chats) - set(config.chats):
+    for chat in set(config.chats) - set(chats):
         await client(JoinChannelRequest(chat))
 
     if not config.bot_enabled:
@@ -85,7 +85,7 @@ async def start_bot():
 async def main():
     f1 = loop.create_task(start_bot())
     f2 = loop.create_task(start_handle())
-    await asyncio.run(f1)
+    await asyncio.run([f1, f2])
 
 
 loop = asyncio.get_event_loop()
