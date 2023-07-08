@@ -13,7 +13,7 @@ from telethon import functions
 from telethon.tl.functions.channels import JoinChannelRequest
 
 import config
-from bot import *
+from bot import dp, bot
 
 API_ID = os.environ['API_ID']
 API_HASH = os.environ['API_HASH']
@@ -35,9 +35,6 @@ async def get_chat_info(username):
 
 @client.on(events.NewMessage())
 async def handler(event):
-    for chat in set(config.chats) - set(chats):
-        await client(JoinChannelRequest(chat))
-
     if not config.bot_enabled:
         return
     
@@ -74,6 +71,23 @@ async def handler(event):
         await bot.send_message('-100' + str(chat_id), message, parse_mode='html', disable_web_page_preview=True)
 
 
+async def check_chats():
+    global chats
+    while True:
+        chat_set = set(config.chats) - set(chats)
+
+        if len(chat_set):
+            for chat in set(config.chats) - set(chats):
+                try:
+                    await client(JoinChannelRequest(chat))
+                except:
+                    config.chats.remove(chat)
+            chats = config.chats[:]
+        
+        await asyncio.sleep(5)
+            
+
+
 async def start_handle():
     await client.run_until_disconnected()
 
@@ -84,8 +98,10 @@ async def start_bot():
 
 async def main():
     f1 = loop.create_task(start_bot())
-    f2 = loop.create_task(start_handle())
-    await asyncio.run([f1, f2])
+    #f2 = loop.create_task(start_handle())
+    f3 = loop.create_task(check_chats())
+    await asyncio.ensure_future(f3)
+    await asyncio.wait([f1])
 
 
 loop = asyncio.get_event_loop()

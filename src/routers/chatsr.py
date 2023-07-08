@@ -23,7 +23,7 @@ async def keywords(callback: types.CallbackQuery):
     markup = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text='Добавить чат 📥', callback_data='add_chat'), InlineKeyboardButton(text='Удалить чат 🗑', callback_data='delete_chat')],
             [InlineKeyboardButton(text='Список чатов 📋', callback_data='chat_list')],
-            [InlineKeyboardButton(text='◀️ Назад', callback_data='settings')]
+            [InlineKeyboardButton(text='◀️ Назад', callback_data='chats_settings')]
     ])
     await callback.message.answer('🗂️ Меню чатов.', reply_markup=markup)
 
@@ -58,7 +58,7 @@ async def user_input(message: types.Message, state: FSMContext):
         markup = InlineKeyboardMarkup(inline_keyboard=[
                 [InlineKeyboardButton(text='Добавить чат 📥', callback_data='add_chat'), InlineKeyboardButton(text='Удалить чат 🗑', callback_data='delete_chat')],
                 [InlineKeyboardButton(text='Список чатов 📋', callback_data='chat_list')],
-                [InlineKeyboardButton(text='◀️ Назад', callback_data='settings')]
+                [InlineKeyboardButton(text='◀️ Назад', callback_data='chats_settings')]
         ])
         await message.answer('🗂️ Меню чатов.', reply_markup=markup)
         to_append_chats_backup = to_append_chats[:]
@@ -132,6 +132,6 @@ async def delete(message: types.Message, state: FSMContext):
         markup = InlineKeyboardMarkup(inline_keyboard=[
                 [InlineKeyboardButton(text='Добавить чат 📥', callback_data='add_chat'), InlineKeyboardButton(text='Удалить чат 🗑', callback_data='delete_chat')],
                 [InlineKeyboardButton(text='Список чатов 📋', callback_data='chat_list')],
-                [InlineKeyboardButton(text='◀️ Назад', callback_data='settings')]
+                [InlineKeyboardButton(text='◀️ Назад', callback_data='chats_settings')]
         ])
         await message.answer('🗂️ Меню чатов.', reply_markup=markup)
