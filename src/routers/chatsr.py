@@ -1,6 +1,5 @@
 from traceback import format_exc
 import asyncio
-from random import randint
 
 from aiogram import Router, types, filters
 from aiogram.fsm.context import FSMContext
@@ -11,7 +10,6 @@ import config
 from db import db
 
 router = Router()
-to_append_chats = []
 
 class ChatsState(StatesGroup):
     user_input = State()
@@ -37,18 +35,17 @@ async def add_chat(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(ChatsState.user_input)
 async def user_input(message: types.Message, state: FSMContext):
-    global to_append_chats
-
     try:
         msg = '✅ Успешно добавлено'
         for chat in map(lambda chat: chat.replace('http://t.me', '').replace('https://t.me', '').replace('/', '').replace('@', '').strip(), message.text.lower().split('\n')):
             if chat == '❌ Отмена':
                 msg = 'Возвращаемся назад.'
                 break
-            if chat in config.chats or chat in to_append_chats:
+            if chat in config.chats:
                 await message.answer(f'Чат <a href="http://t.me/{chat.strip()}"><b>{chat.strip()}</b></a> уже добавлен.', parse_mode='html')
                 continue
-            to_append_chats.append(chat.replace('http://t.me', '').replace('https://t.me', '').replace('/', '').replace('@', '').strip())
+            config.chats.append(chat)
+            db.create('chats', chat)
         await message.answer(msg, reply_markup=ReplyKeyboardRemove())
     except:
         await message.answer('❌ Ошибка при добавлении', reply_markup=ReplyKeyboardRemove())
@@ -61,26 +58,15 @@ async def user_input(message: types.Message, state: FSMContext):
                 [InlineKeyboardButton(text='◀️ Назад', callback_data='chats_settings')]
         ])
         await message.answer('🗂️ Меню чатов.', reply_markup=markup)
-        to_append_chats_backup = to_append_chats[:]
-        for chat in to_append_chats_backup:
-            if chat in to_append_chats:
-                config.chats.append(chat)
-                db.create('chats', chat)
-                to_append_chats.remove(chat)
-                await asyncio.sleep(randint(480, 600))
 
 @router.callback_query(filters.Text('chat_list'))
 async def chat_list(callback: types.CallbackQuery):
     msg = '🗂️ Список чатов:\n\n'
-    last_index = 0
+
     for index, chat in enumerate(config.chats):
         msg += f"""{index+1}. <a href="http://t.me/{chat}">{chat}</a>\n"""
-        last_index = index + 1
 
-    for index, to_append_chat in enumerate(to_append_chats):
-        msg += f"""{last_index+index+1}. <a href="http://t.me/{to_append_chat}">{to_append_chat}</a> (ожидает добавления)\n"""
-     
-    if (not len(config.chats + to_append_chats)):
+    if (not len(config.chats)):
         msg += 'Список пуст.'
 
     await callback.message.answer(msg, 'html', disable_web_page_preview=True)
@@ -89,15 +75,11 @@ async def chat_list(callback: types.CallbackQuery):
 @router.callback_query(filters.Text('delete_chat'))
 async def delete_chat(callback: types.CallbackQuery, state: FSMContext):
     msg = '🗑 Укажите номер чата, который нужно удалить (можно несколько, через запятую)\n\n'
-    last_index = 0
+
     for index, chat in enumerate(config.chats):
         msg += f"""{index+1}. <a href="http://t.me/{chat}">{chat}</a>\n"""
-        last_index = index+1
-    
-    for index, to_append_chat in enumerate(to_append_chats):
-        msg += f"""{last_index+index+1}. <a href="http://t.me/{to_append_chat}">{to_append_chat}</a> (ожидает добавления)\n"""
 
-    if (not len(config.chats + to_append_chats)):
+    if (not len(config.chats)):
         await callback.message.answer('Нет чатов для удаления.')
         return
 
@@ -115,9 +97,6 @@ async def delete(message: types.Message, state: FSMContext):
             if value.strip() == '❌ Отмена':
                 msg = 'Возвращаемся назад.'
                 break
-            if value.strip() in to_append_chats:
-                to_append_chats.remove(value.strip())
-                continue
             if value.strip() not in config.chats:
                 await message.answer(f'Чат <a href="http://t.me/{value.strip()}"><b>{value.strip()}</b></a> отсутствует', parse_mode='html')
                 continue
