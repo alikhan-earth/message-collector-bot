@@ -12,14 +12,16 @@ from collections import Counter
 from telethon import TelegramClient, events
 from telethon import functions
 from telethon.tl.functions.channels import JoinChannelRequest
-from telethon.tl.functions.messages import CheckChatInviteRequest
+from telethon.tl.functions.messages import ImportChatInviteRequest
+from telethon.errors.rpcerrorlist import UsernameInvalidError, ChannelPrivateError
 
 import config
 from bot import dp, bot
 
 API_ID = os.environ['API_ID']
 API_HASH = os.environ['API_HASH']
-chats = config.monitoring_chats[:]
+chats = []
+private_channels_ids = []
 
 client = TelegramClient('session_name', API_ID, API_HASH, system_version="4.16.30-vxALIKHANEEE")
 client.start()
@@ -41,9 +43,10 @@ async def get_chat_info(username):
 async def handler(event):
     if not config.bot_enabled:
         return
-    
+
     if not event.chat: return
-    if event.chat.to_dict()['username'] not in config.monitoring_chats:
+
+    if event.chat.to_dict()['username'] not in config.monitoring_chats and event.chat.to_dict()['id'] not in private_channels_ids:
         return
     
     is_group = event.chat.to_dict()['gigagroup'] or event.chat.to_dict()['megagroup']
@@ -73,6 +76,7 @@ async def handler(event):
 
     for chat in config.chats:
         chat_id = (await get_chat_info(chat))
+        print(chat_id)
         if chat_id['gigagroup'] or chat_id['megagroup']:
             await bot.send_message('-100' + str(chat_id['id']), message, parse_mode='html', disable_web_page_preview=True)
         else:
@@ -86,17 +90,18 @@ async def check_chats():
 
         if len(chat_set):
             for chat in set(config.monitoring_chats) - set(chats):
-                if 'joinchat' in chat and 'AAAAA' in chat:
-                    print(123)
-                    try:
-                        chat_invite = await client(CheckChatInviteRequest(chat[chat.index('A')]))
-                        print(chat_invite)
-                    except:
-                        print(format_exc())
-                        config.monitoring_chats.remove(chat)
+                if chat in config.monitoring_chats and chat in chats:
+                    continue
+
                 try:
                     await client(JoinChannelRequest(chat))
-                except:
+                except ChannelPrivateError:
+                    result = await client(ImportChatInviteRequest(chat[chat.index('A'):] if '+' not in chat else chat[chat.rindex('/')+2:]))
+                    result_dict = result.to_dict()
+
+                    if len(result_dict['chats']):
+                        private_channels_ids.append(result_dict['chats'][0]['id'])
+                except UsernameInvalidError:
                     config.monitoring_chats.remove(chat)
             chats = config.monitoring_chats[:]
         
