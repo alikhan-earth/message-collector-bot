@@ -39,6 +39,7 @@ async def handler(event):
         return
     
     is_group = event.chat.to_dict()['gigagroup'] or event.chat.to_dict()['megagroup']
+    print(event.message.from_id.user_id)
     user_info = await client.get_entity(event.message.from_id.user_id)
     print(user_info.username)
     if is_group:
