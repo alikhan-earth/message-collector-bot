@@ -22,6 +22,13 @@ client = TelegramClient('session_name', API_ID, API_HASH, system_version="4.16.3
 client.start()
 
 
+async def get_full_user_info(event):
+    if event.message.to_dict()['from_id']:
+        full_user_info = await client(functions.users.GetFullUserRequest(id=event.message.to_dict()['from_id']['user_id']))
+        return full_user_info.to_dict()['users'][0]
+    return {"username": event.chat.to_dict()['username']}
+
+
 async def get_chat_info(username):
     chat_info = await client(functions.channels.GetFullChannelRequest(username))
     return chat_info.to_dict()['chats'][0]
@@ -29,6 +36,7 @@ async def get_chat_info(username):
 
 @client.on(events.NewMessage())
 async def handler(event):
+    await asyncio.sleep(40)
     print(event.message.to_dict(), event.chat.to_dict())
     if not config.bot_enabled:
         return
@@ -40,7 +48,7 @@ async def handler(event):
     
     is_group = event.chat.to_dict()['gigagroup'] or event.chat.to_dict()['megagroup']
     print(event.message.from_id.user_id)
-    user_info = await client.get_entity(event.message.from_id.user_id)
+    user_info = await get_full_user_info(event)
     print(user_info.username)
     if is_group:
         if user_info.username in config.black_list:
@@ -90,7 +98,6 @@ async def handler(event):
                 entity = await client.get_entity(chat)
                 await client.send_message(entity = entity,message=message, parse_mode='html', link_preview=False)
         await asyncio.sleep(30)
-    await asyncio.sleep(40)
 
 async def check_chats():
     global chats
