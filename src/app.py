@@ -16,7 +16,7 @@ from bot import dp, bot
 API_ID = os.environ['API_ID']
 API_HASH = os.environ['API_HASH']
 chats = []
-private_channels_ids = []
+private_channels_ids = {}
 
 client = TelegramClient('session_name', API_ID, API_HASH, system_version="4.16.30-vxALIKHANEEE")
 client.start()
@@ -35,7 +35,7 @@ async def handler(event):
 
     if not event.chat: return
 
-    if event.chat.to_dict()['username'] not in config.monitoring_chats and event.chat.to_dict()['id'] not in private_channels_ids:
+    if event.chat.to_dict()['username'] not in config.monitoring_chats and event.chat.to_dict()['id'] not in private_channels_ids.values():
         return
     
     is_group = event.chat.to_dict()['gigagroup'] or event.chat.to_dict()['megagroup']
@@ -66,14 +66,18 @@ async def handler(event):
     config.messages.append(message)
 
     if config.send_mode == 'forwarding':
-        message += f"""\n\n<b>Пользователь</b>: <a href="http://t.me/{user_info.username}">{user_info.username}</a>\n<b>Чат</b>: <a href="http://t.me/{event.chat.to_dict()['username']}">{event.chat.to_dict()['title']}</a>"""
+        user_link = '<a href="http://t.me/{0}">{1}</a>'
+        message += f"""\n\n<b>Пользователь</b>: {'Удалено' if not user_info.username else user_link.format(user_info.username, user_info.username)}\n<b>Чат</b>: <a href="http://t.me/{event.chat.to_dict()['username']}">{event.chat.to_dict()['title']}</a>"""
     print(4, config.chats)
     for chat in config.chats:
         print(chat, 'AAAAA' in chat and 'joinchat' in chat or '+')
         if 'AAAAA' in chat and 'joinchat' in chat or '+' in chat:
             print('\nyeah\n')
-            entity = await client.get_entity(chat)
-            await client.send_message(entity = entity,message=message, parse_mode='html', link_preview=False)
+            try:
+                await bot.send_message('-100' + private_channels_ids[chat], message, parse_mode='html', disable_web_page_preview=True)
+            except:
+                entity = await client.get_entity(chat)
+                await client.send_message(entity = entity,message=message, parse_mode='html', link_preview=False)
         else:
             print('\nno\n')
             chat_id = (await get_chat_info(chat))
@@ -101,7 +105,7 @@ async def check_chats():
                     result_dict = result.to_dict()
 
                     if len(result_dict['chats']):
-                        private_channels_ids.append(result_dict['chats'][0]['id'])
+                        private_channels_ids[chat] = result_dict['chats'][0]['id']
             chats = config.monitoring_chats[:]
         
         await asyncio.sleep(5)
