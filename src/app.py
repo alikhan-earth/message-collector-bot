@@ -44,25 +44,28 @@ async def handler(event):
     if is_group:
         if user_info.username in config.black_list:
             return
-
+    print(1)
     for word in config.stop_words:
         if word in event.message.text.lower():
             return
-
+    print(2)
     for word in config.key_words:
-        if word not in event.message.text.lower():
-            return
+        if word in event.message.text.lower():
+            break
+    else:
+        return
 
     message = event.message.text.lower().strip()
 
     if message in config.messages and config.duplicate_filter:
         return
+    print(3)
 
     config.messages.append(message)
 
     if config.send_mode == 'forwarding':
         message += f"""\n\n<b>Пользователь</b>: <a href="http://t.me/{user_info['username']}">{user_info['username']}</a>\n<b>Чат</b>: <a href="http://t.me/{event.chat.to_dict()['username']}">{event.chat.to_dict()['title']}</a>"""
-
+    print(4, config.chats)
     for chat in config.chats:
         print(chat, 'AAAAA' in chat and 'joinchat' in chat or '+')
         if 'AAAAA' in chat and 'joinchat' in chat or '+' in chat:
