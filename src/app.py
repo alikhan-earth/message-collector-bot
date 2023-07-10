@@ -22,13 +22,6 @@ client = TelegramClient('session_name', API_ID, API_HASH, system_version="4.16.3
 client.start()
 
 
-async def get_full_user_info(event):
-    if event.message.to_dict()['from_id']:
-        full_user_info = await client(functions.users.GetFullUserRequest(id=event.message.to_dict()['from_id']['user_id']))
-        return full_user_info.to_dict()['users'][0]
-    return {"username": event.chat.to_dict()['username']}
-
-
 async def get_chat_info(username):
     chat_info = await client(functions.channels.GetFullChannelRequest(username))
     return chat_info.to_dict()['chats'][0]
@@ -36,7 +29,7 @@ async def get_chat_info(username):
 
 @client.on(events.NewMessage())
 async def handler(event):
-    print(event.message.text, event.chat.to_dict())
+    print(event.message.to_dict(), event.chat.to_dict())
     if not config.bot_enabled:
         return
 
@@ -46,7 +39,7 @@ async def handler(event):
         return
     
     is_group = event.chat.to_dict()['gigagroup'] or event.chat.to_dict()['megagroup']
-    user_info = await get_full_user_info(event)
+    user_info = await event.get_sender()
 
     if is_group:
         if user_info['username'] in config.black_list:
@@ -97,7 +90,6 @@ async def check_chats():
                     continue
 
                 try:
-                    print(chat)
                     await client(JoinChannelRequest(chat))
                 except (ChannelPrivateError, ValueError):
                     result = await client(ImportChatInviteRequest(chat[chat.index('A'):] if '+' not in chat else chat[chat.rindex('/')+2:]))

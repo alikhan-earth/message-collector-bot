@@ -54,7 +54,7 @@ async def user_input(message: types.Message, state: FSMContext):
                 msg = 'Возвращаемся назад'
                 break
             if monitoring_chat.strip() in config.monitoring_chats or monitoring_chat in to_append_chats:
-                await message.answer(f"""Чат <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and monitoring_chat[monitoring_chat.rindex('/')+1] != '+' else monitoring_chat}"><b>{monitoring_chat.strip()}</b></a> уже добавлен.""", parse_mode='html')
+                await message.answer(f"""Чат <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and '+' not in monitoring_chat else monitoring_chat}"><b>{monitoring_chat.strip()}</b></a> уже добавлен.""", parse_mode='html')
                 continue
             to_append_chats.append(monitoring_chat)
         await message.answer(msg, parse_mode='html', reply_markup=ReplyKeyboardRemove())
@@ -83,11 +83,11 @@ async def monitoring_chat_list(callback: types.CallbackQuery):
     msg = '🗂️ Список чатов для мониторинга:\n\n'
     last_index = 0
     for index, monitoring_chat in enumerate(config.monitoring_chats):
-        msg += f"""{index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and monitoring_chat[monitoring_chat.rindex('/')+1] != '+' else monitoring_chat}">{monitoring_chat}</a>\n"""
+        msg += f"""{index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and '+' not in monitoring_chat else monitoring_chat}">{monitoring_chat}</a>\n"""
         last_index = index + 1
 
     for index, to_append_chat in enumerate(to_append_chats):
-        msg += f"""{last_index+index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and monitoring_chat[monitoring_chat.rindex('/')+1] != '+' else monitoring_chat}">{to_append_chat}</a> (ожидает добавления)\n"""
+        msg += f"""{last_index+index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and '+' not in monitoring_chat else monitoring_chat}">{to_append_chat}</a> (ожидает добавления)\n"""
 
 
     if (not len(config.monitoring_chats + to_append_chats)):
@@ -101,11 +101,11 @@ async def delete_monitoring_chat(callback: types.CallbackQuery, state: FSMContex
     msg = '🗑 Укажите чаты, которые нужно удалить\n\n'
     last_index = 0
     for index, monitoring_chat in enumerate(config.monitoring_chats):
-        msg += f"""{index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and monitoring_chat[monitoring_chat.rindex('/')+1] != '+' else monitoring_chat}">{monitoring_chat}</a>\n"""
+        msg += f"""{index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and '+' not in monitoring_chat else monitoring_chat}">{monitoring_chat}</a>\n"""
         last_index = index+1
     
     for index, to_append_chat in enumerate(to_append_chats):
-        msg += f"""{last_index+index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and monitoring_chat[monitoring_chat.rindex('/')+1] != '+' else monitoring_chat}">{to_append_chat}</a> (ожидает добавления)\n"""
+        msg += f"""{last_index+index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and '+' not in monitoring_chat else monitoring_chat}">{to_append_chat}</a> (ожидает добавления)\n"""
 
     if (not len(config.monitoring_chats + to_append_chats)):
         await callback.message.answer('Нет чатов для удаления.')
@@ -128,7 +128,7 @@ async def delete(message: types.Message, state: FSMContext):
                 to_append_chats.remove(value.strip())
                 continue
             if value.strip() not in config.monitoring_chats:
-                await message.answer(f"""Чат <a href="{'http://t.me/' + value if 'joinchat' and value[value.rindex('/')+1] != '+' not in value else value}"><b>{value.strip()}</b></a> отсутствует""", parse_mode='html')
+                await message.answer(f"""Чат <a href="{'http://t.me/' + value if 'joinchat' and '+' not in value else value}"><b>{value.strip()}</b></a> отсутствует""", parse_mode='html')
                 continue
             config.monitoring_chats.remove(value)
             db.delete('monitoring_chats', 'chat_id', value)
