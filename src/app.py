@@ -104,7 +104,7 @@ async def check_chats():
                     result_dict = result.to_dict()
 
                     if len(result_dict['chats']):
-                        private_channels_ids.append(result_dict['chats'][0]['id'])t)
+                        private_channels_ids.append(result_dict['chats'][0]['id'])
             chats = config.monitoring_chats[:]
         
         await asyncio.sleep(5)
