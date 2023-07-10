@@ -66,7 +66,7 @@ async def handler(event):
     config.messages.append(message)
 
     if config.send_mode == 'forwarding':
-        message += f"""\n\n<b>Пользователь</b>: <a href="http://t.me/{user_info['username']}">{user_info['username']}</a>\n<b>Чат</b>: <a href="http://t.me/{event.chat.to_dict()['username']}">{event.chat.to_dict()['title']}</a>"""
+        message += f"""\n\n<b>Пользователь</b>: <a href="http://t.me/{user_info.username}">{user_info.username}</a>\n<b>Чат</b>: <a href="http://t.me/{event.chat.to_dict()['username']}">{event.chat.to_dict()['title']}</a>"""
     print(4, config.chats)
     for chat in config.chats:
         print(chat, 'AAAAA' in chat and 'joinchat' in chat or '+')
