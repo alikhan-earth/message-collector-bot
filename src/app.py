@@ -64,8 +64,8 @@ async def handler(event):
         message += f"""\n\n<b>Пользователь</b>: <a href="http://t.me/{user_info['username']}">{user_info['username']}</a>\n<b>Чат</b>: <a href="http://t.me/{event.chat.to_dict()['username']}">{event.chat.to_dict()['title']}</a>"""
 
     for chat in config.chats:
-        print(chat, 'AAAAA' in chat and 'joinchat' in chat or chat[chat.rindex('/')+1] == '+')
-        if 'AAAAA' in chat and 'joinchat' in chat or chat[chat.rindex('/')+1] == '+':
+        print(chat, 'AAAAA' in chat and 'joinchat' in chat or '+')
+        if 'AAAAA' in chat and 'joinchat' in chat or '+' in chat:
             print('\nyeah\n')
             entity = await client.get_entity(chat)
             await client.send_message(entity = entity,message=message, parse_mode='html', link_preview=False)
