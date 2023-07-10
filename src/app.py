@@ -88,6 +88,8 @@ async def handler(event):
             else:
                 entity = await client.get_entity(chat)
                 await client.send_message(entity = entity,message=message, parse_mode='html', link_preview=False)
+        asyncio.sleep(30)
+    asyncio.sleep(40)
 
 async def check_chats():
     global chats
