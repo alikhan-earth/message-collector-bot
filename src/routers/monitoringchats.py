@@ -54,7 +54,7 @@ async def user_input(message: types.Message, state: FSMContext):
                 msg = 'Возвращаемся назад'
                 break
             if monitoring_chat.strip() in config.monitoring_chats or monitoring_chat in to_append_chats:
-             r   await message.answer(f"""Чат <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and monitoring_chat[monitoring_chat.rindex('/')+1] != '+' else monitoring_chat}"><b>{monitoring_chat.strip()}</b></a> уже добавлен.""", parse_mode='html')
+                await message.answer(f"""Чат <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and monitoring_chat[monitoring_chat.rindex('/')+1] != '+' else monitoring_chat}"><b>{monitoring_chat.strip()}</b></a> уже добавлен.""", parse_mode='html')
                 continue
             to_append_chats.append(monitoring_chat)
         await message.answer(msg, parse_mode='html', reply_markup=ReplyKeyboardRemove())
