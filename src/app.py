@@ -39,7 +39,7 @@ async def handler(event):
         return
     
     is_group = event.chat.to_dict()['gigagroup'] or event.chat.to_dict()['megagroup']
-    user_info = await event.get_sender()
+    user_info = await client.get_entity(event.message.from_id.user_id)
     print(user_info.username)
     if is_group:
         if user_info.username in config.black_list:
@@ -88,8 +88,8 @@ async def handler(event):
             else:
                 entity = await client.get_entity(chat)
                 await client.send_message(entity = entity,message=message, parse_mode='html', link_preview=False)
-        asyncio.sleep(30)
-    asyncio.sleep(40)
+        await asyncio.sleep(30)
+    await asyncio.sleep(40)
 
 async def check_chats():
     global chats
@@ -106,12 +106,20 @@ async def check_chats():
                 except (ChannelPrivateError, ValueError):
                     result = await client(ImportChatInviteRequest(chat[chat.index('A'):] if '+' not in chat else chat[chat.rindex('/')+2:]))
                     result_dict = result.to_dict()
-
+                    print('result_dict', result_dict)
                     if len(result_dict['chats']):
                         private_channels_ids[chat] = result_dict['chats'][0]['id']
             chats = config.monitoring_chats[:]
         
-        await asyncio.sleep(5)
+        to_delete = []
+
+        for key in private_channels_ids.keys():
+            if key not in config.monitoring_chats:
+                to_delete.append(key)
+
+        for key in to_delete:
+            del private_channels_ids[key]
+        await asyncio.sleep(20)
 
 
 async def start_handle():
