@@ -48,7 +48,10 @@ async def handler(event):
     
     is_group = event.chat.to_dict()['gigagroup'] or event.chat.to_dict()['megagroup']
     print(event.message.from_id.user_id)
-    user_info = await get_full_user_info(event)
+    try:
+        user_info = await get_full_user_info(event)
+    except:
+        user_info = None
     print(user_info.username)
     if is_group:
         if user_info.username in config.black_list:
