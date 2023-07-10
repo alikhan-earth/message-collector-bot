@@ -9,7 +9,7 @@ router = Router()
 
 def _get_settings_text():
     format_txt = """<a href="{0}">{1}</a>"""
-    return f"""⚙️ Перешли к главным настройкам бота, выберите опцию:\n\nСтатус бота: {'🟢 Онлайн' if config.bot_enabled else '🔴 Выключен'}\nФильтр дубликатов: {'🟢 Включен' if config.duplicate_filter else '🔴 Выключен'}\n\nЧаты для переотправки: {', '.join(map(lambda chat: format_txt.format(), config.chats)) if len(config.chats) else 'Список пуст'}\nРежим отправки: {'Пересылка с ссылкой' if config.send_mode == 'forwarding' else 'Копирование'}"""
+    return f"""⚙️ Перешли к главным настройкам бота, выберите опцию:\n\nСтатус бота: {'🟢 Онлайн' if config.bot_enabled else '🔴 Выключен'}\nФильтр дубликатов: {'🟢 Включен' if config.duplicate_filter else '🔴 Выключен'}\n\nЧаты для переотправки: {', '.join(map(lambda chat: format_txt.format('http://t.me/' + chat if 'joinchat' and chat[chat.rindex('/')+1] != '+' not in chat else chat, chat), config.chats)) if len(config.chats) else 'Список пуст'}\nРежим отправки: {'Пересылка с ссылкой' if config.send_mode == 'forwarding' else 'Копирование'}"""
 
 
 def _get_settings_kb():
