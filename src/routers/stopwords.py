@@ -41,7 +41,7 @@ async def user_input(message: types.Message, state: FSMContext):
             if stop_word == '❌ Отмена':
                 msg = 'Возвращаемся назад.'
                 break
-            if stop_word in config.stop_words:
+            if stop_word.lower() in config.stop_words:
                 await message.answer(f'Стоп-слово <b>{stop_word}</b> уже добавлено.', parse_mode='html')
                 continue
             config.stop_words.append(stop_word.strip().lower())
@@ -97,7 +97,7 @@ async def delete(message: types.Message, state: FSMContext):
             if value.strip() == '❌ Отмена':
                 msg = 'Возвращаемся назад.'
                 break
-            if value.strip() not in config.stop_words:
+            if value.strip().lower() not in config.stop_words:
                 await message.answer(f'Стоп-слово <b>{value.strip()}</b> отсутствует', parse_mode='html')
                 continue
             config.stop_words.remove(value)

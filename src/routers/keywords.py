@@ -41,7 +41,7 @@ async def user_input(message: types.Message, state: FSMContext):
             if key_word == '❌ Отмена':
                 msg = 'Возвращаемся назад.'
                 break
-            if key_word in config.key_words:
+            if key_word.lower() in config.key_words:
                 await message.answer(f'Ключевое слово <b>{key_word}</b> уже добавлено.', parse_mode='html')
                 continue
             config.key_words.append(key_word.strip().lower())
@@ -97,7 +97,7 @@ async def delete(message: types.Message, state: FSMContext):
             if value.strip() == '❌ Отмена':
                 msg = 'Возвращаемся назад.'
                 break
-            if value.strip() not in config.key_words:
+            if value.strip().lower() not in config.key_words:
                 await message.answer(f'Ключевое слово <b>{value.strip()}</b> отсутствует', parse_mode='html')
                 continue
             config.key_words.remove(value)
