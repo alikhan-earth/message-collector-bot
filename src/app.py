@@ -50,13 +50,13 @@ async def handler(event):
             return
     print(2)
     for word in config.key_words:
-        if word in event.message.text.lower():
+        if word.lower() in event.message.text.lower():
             break
     else:
         return
-
+    print(2, 3)
     message = event.message.text.lower().strip()
-
+    print(message, config.messages, config.duplicate_filter)
     if message in config.messages and config.duplicate_filter:
         return
     print(3)
