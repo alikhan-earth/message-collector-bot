@@ -93,8 +93,9 @@ async def check_chats():
                     continue
 
                 try:
+                    print(chat)
                     await client(JoinChannelRequest(chat))
-                except ChannelPrivateError:
+                except (ChannelPrivateError, ValueError):
                     result = await client(ImportChatInviteRequest(chat[chat.index('A'):] if '+' not in chat else chat[chat.rindex('/')+2:]))
                     result_dict = result.to_dict()
 
