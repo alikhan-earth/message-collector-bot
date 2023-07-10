@@ -17,6 +17,7 @@ class ChatsState(StatesGroup):
 
 
 def check_chat(chat):
+    print(chat)
     if chat[chat.rindex('/')+1] == '+':
         return chat
     if 'AAAAA' in chat and 'joinchat' in chat:
@@ -45,13 +46,14 @@ async def add_chat(callback: types.CallbackQuery, state: FSMContext):
 async def user_input(message: types.Message, state: FSMContext):
     try:
         msg = '✅ Успешно добавлено'
-        for chat in map(check_chat, message.text.lower().split('\n')):
+        for chat in map(check_chat, message.text.split('\n')):
             if chat == '❌ Отмена':
                 msg = 'Возвращаемся назад.'
                 break
             if chat in config.chats:
-                await message.answer(f"""Чат <a href="{'http://t.me/' + chat if 'joinchat' not in chat and chat[chat.rindex('/')+1] != '+' else chat}"><b>{chat.strip()}</b></a> уже добавлен.""", parse_mode='html')
+                await message.answer(f"""Чат <a href="{'http://t.me/' + chat if 'joinchat' not in chat and chat[chat.rindex('/')+1] != '+' else chat}"{chat.strip()}</a> уже добавлен.""", parse_mode='html')
                 continue
+            print(chat, 'chatik')
             config.chats.append(chat)
             db.create('chats', chat)
         await message.answer(msg, reply_markup=ReplyKeyboardRemove())
@@ -72,7 +74,7 @@ async def chat_list(callback: types.CallbackQuery):
     msg = '🗂️ Список чатов:\n\n'
 
     for index, chat in enumerate(config.chats):
-        msg += f"""{index+1}. <a href="{'http://t.me/' + chat if 'joinchat' not in chat and chat[chat.rindex('/')+1] != '+' else chat}"><b>{chat}</a>\n"""
+        msg += f"""{index+1}. <a href="{'http://t.me/' + chat if 'joinchat' not in chat and chat[chat.rindex('/')+1] != '+' else chat}">{chat}</a>\n"""
 
     if (not len(config.chats)):
         msg += 'Список пуст.'
