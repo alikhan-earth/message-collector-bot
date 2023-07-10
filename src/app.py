@@ -52,8 +52,8 @@ async def handler(event):
         user_info = await get_full_user_info(event)
     except:
         user_info = None
-    print(user_info.username)
-    if is_group:
+
+    if is_group and user_info:
         if user_info.username in config.black_list:
             return
     print(1)
