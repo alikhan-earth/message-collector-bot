@@ -3,11 +3,6 @@ nest_asyncio.apply()
 
 import os
 import asyncio
-import threading
-from traceback import format_exc
-import json
-from pprint import pprint
-from collections import Counter
 
 from telethon import TelegramClient, events
 from telethon import functions
@@ -75,13 +70,17 @@ async def handler(event):
         message += f"""\n\n<b>Пользователь</b>: <a href="http://t.me/{user_info['username']}">{user_info['username']}</a>\n<b>Чат</b>: <a href="http://t.me/{event.chat.to_dict()['username']}">{event.chat.to_dict()['title']}</a>"""
 
     for chat in config.chats:
-        chat_id = (await get_chat_info(chat))
-        print(chat_id)
-        if chat_id['gigagroup'] or chat_id['megagroup']:
-            await bot.send_message('-100' + str(chat_id['id']), message, parse_mode='html', disable_web_page_preview=True)
-        else:
+        if 'AAAAA' in chat and 'joinchat' in chat or chat[chat.rindex('/')+1] == '+':
             entity = await client.get_entity(chat)
-            await client.send_message(entity = entity,message=message, parse_mode='html', link_preview=False)  
+            await client.send_message(entity = entity,message=message, parse_mode='html', link_preview=False)
+        else:
+            chat_id = (await get_chat_info(chat))
+
+            if chat_id['gigagroup'] or chat_id['megagroup']:
+                await bot.send_message('-100' + str(chat_id['id']), message, parse_mode='html', disable_web_page_preview=True)
+            else:
+                entity = await client.get_entity(chat)
+                await client.send_message(entity = entity,message=message, parse_mode='html', link_preview=False)
 
 async def check_chats():
     global chats

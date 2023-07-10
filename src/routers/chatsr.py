@@ -16,6 +16,14 @@ class ChatsState(StatesGroup):
     delete = State()
 
 
+def check_chat(chat):
+    if chat[chat.rindex('/')+1] == '+':
+        return chat
+    if 'AAAAA' in chat and 'joinchat' in chat:
+        return chat
+    return chat.replace('http://t.me', '').replace('https://t.me', '').replace('/', '').replace('@', '').strip()
+
+
 @router.callback_query(filters.Text('chats'))
 async def keywords(callback: types.CallbackQuery):
     markup = InlineKeyboardMarkup(inline_keyboard=[
@@ -37,7 +45,7 @@ async def add_chat(callback: types.CallbackQuery, state: FSMContext):
 async def user_input(message: types.Message, state: FSMContext):
     try:
         msg = '✅ Успешно добавлено'
-        for chat in map(lambda chat: chat.replace('http://t.me', '').replace('https://t.me', '').replace('/', '').replace('@', '').strip(), message.text.lower().split('\n')):
+        for chat in map(check_chat, message.text.lower().split('\n')):
             if chat == '❌ Отмена':
                 msg = 'Возвращаемся назад.'
                 break
@@ -92,7 +100,7 @@ async def delete_chat(callback: types.CallbackQuery, state: FSMContext):
 async def delete(message: types.Message, state: FSMContext):
     try:
         msg = '✅ Успешно удалено'
-        values = map(lambda chat: chat.replace('http://t.me', '').replace('https://t.me', '').replace('/', '').replace('@', '').strip(), message.text.split('\n'))
+        values = map(check_chat, message.text.split('\n'))
         for value in values:
             if value.strip() == '❌ Отмена':
                 msg = 'Возвращаемся назад.'

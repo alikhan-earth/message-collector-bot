@@ -19,7 +19,6 @@ class MonitoringChatsState(StatesGroup):
 
 
 def check_chat(chat):
-    print('chat', chat)
     if chat[chat.rindex('/')+1] == '+':
         return chat
     if 'AAAAA' in chat and 'joinchat' in chat:
