@@ -44,8 +44,8 @@ async def user_input(message: types.Message, state: FSMContext):
             if key_word in config.key_words:
                 await message.answer(f'Ключевое слово <b>{key_word}</b> уже добавлено.', parse_mode='html')
                 continue
-            config.key_words.append(key_word.strip())
-            db.create('key_words', key_word.strip())
+            config.key_words.append(key_word.strip().lower())
+            db.create('key_words', key_word.strip().lower())
         await message.answer(msg, reply_markup=ReplyKeyboardRemove())
     except:
         await message.answer('❌ Ошибка при добавлении', reply_markup=ReplyKeyboardRemove())

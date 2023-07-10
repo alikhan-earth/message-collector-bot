@@ -44,8 +44,8 @@ async def user_input(message: types.Message, state: FSMContext):
             if stop_word in config.stop_words:
                 await message.answer(f'Стоп-слово <b>{stop_word}</b> уже добавлено.', parse_mode='html')
                 continue
-            config.stop_words.append(stop_word.strip())
-            db.create('stop_words', stop_word.strip())
+            config.stop_words.append(stop_word.strip().lower())
+            db.create('stop_words', stop_word.strip().lower())
         await message.answer(msg, reply_markup=ReplyKeyboardRemove())
     except:
         await message.answer('❌ Ошибка при добавлении', reply_markup=ReplyKeyboardRemove())

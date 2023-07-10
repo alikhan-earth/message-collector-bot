@@ -40,9 +40,9 @@ async def handler(event):
     
     is_group = event.chat.to_dict()['gigagroup'] or event.chat.to_dict()['megagroup']
     user_info = await event.get_sender()
-
+    print(user_info.username)
     if is_group:
-        if user_info['username'] in config.black_list:
+        if user_info.username in config.black_list:
             return
 
     for word in config.stop_words:
