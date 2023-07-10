@@ -50,7 +50,7 @@ async def user_input(message: types.Message, state: FSMContext):
                 msg = 'Возвращаемся назад.'
                 break
             if chat in config.chats:
-                await message.answer(f'Чат <a href="http://t.me/{chat.strip()}"><b>{chat.strip()}</b></a> уже добавлен.', parse_mode='html')
+                await message.answer(f"""Чат <a href="{'http://t.me/' + chat if 'joinchat' not in chat and chat[chat.rindex('/')+1] != '+' else chat}"><b>{chat.strip()}</b></a> уже добавлен.""", parse_mode='html')
                 continue
             config.chats.append(chat)
             db.create('chats', chat)
@@ -72,7 +72,7 @@ async def chat_list(callback: types.CallbackQuery):
     msg = '🗂️ Список чатов:\n\n'
 
     for index, chat in enumerate(config.chats):
-        msg += f"""{index+1}. <a href="http://t.me/{chat}">{chat}</a>\n"""
+        msg += f"""{index+1}. <a href="{'http://t.me/' + chat if 'joinchat' not in chat and chat[chat.rindex('/')+1] != '+' else chat}"><b>{chat}</a>\n"""
 
     if (not len(config.chats)):
         msg += 'Список пуст.'
@@ -85,7 +85,7 @@ async def delete_chat(callback: types.CallbackQuery, state: FSMContext):
     msg = '🗑 Укажите номер чата, который нужно удалить (можно несколько, через запятую)\n\n'
 
     for index, chat in enumerate(config.chats):
-        msg += f"""{index+1}. <a href="http://t.me/{chat}">{chat}</a>\n"""
+        msg += f"""{index+1}. <a href="{'http://t.me/' + chat if 'joinchat' not in chat and chat[chat.rindex('/')+1] != '+' else chat}">{chat.strip()}</a>\n"""
 
     if (not len(config.chats)):
         await callback.message.answer('Нет чатов для удаления.')
@@ -106,7 +106,7 @@ async def delete(message: types.Message, state: FSMContext):
                 msg = 'Возвращаемся назад.'
                 break
             if value.strip() not in config.chats:
-                await message.answer(f'Чат <a href="http://t.me/{value.strip()}"><b>{value.strip()}</b></a> отсутствует', parse_mode='html')
+                await message.answer(f"""Чат <a href="{'http://t.me/' + value if 'joinchat' not in value and value[value.rindex('/')+1] != '+' else value}">{value.strip()}</a> отсутствует""", parse_mode='html')
                 continue
             config.chats.remove(value)
             db.delete('chats', 'chat_id', value)
