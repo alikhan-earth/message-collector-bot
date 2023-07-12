@@ -4,6 +4,7 @@ nest_asyncio.apply()
 import os
 import asyncio
 from pprint import pprint
+from random import randint
 from traceback import format_exc
 
 from telethon import TelegramClient, events
@@ -38,7 +39,9 @@ async def get_chat_info(username):
 
 @client.on(events.NewMessage())
 async def handler(event):
-    await asyncio.sleep(20)
+    await asyncio.sleep(randint(60, 150))
+
+    if not event.chat: return
 
     if not config.bot_enabled:
         return
@@ -73,12 +76,12 @@ async def handler(event):
     print(3)
 
     config.messages.append(message)
-
+    print(user_info)
     if config.send_mode == 'forwarding':
-        user_link = """<a href="http://t.me/{0}">{1}</a>"""
-        link = """<a href="http://t.me/{0}\""""
+        user_link = """<a href="http://t.me/{0}">@{1}</a>"""
+        link = """<a href="http://t.me/{0}\">"""
 
-        message += f"""\n\n<b>Пользователь</b>: {'Отсутствует' if not user_info else user_link.format(user_info.username, user_info.username)}\n<b>Чат</b>: <a href="{'http://t.me/' + link.format(event.chat.to_dict()['username']) if str(event.chat.to_dict()['id']) not in map(str, private_channels_ids.values()) else list(private_channels_ids.keys())[list(map(str, private_channels_ids.values())).index(str(event.chat.to_dict()['id']))]}">{event.chat.to_dict()['title']}</a>"""
+        message += f"""\n\n<b>Пользователь</b>: {'<code>Отсутствует</code>' if not user_info.username else user_link.format(f'user_info.username', user_info.username)}\n<b>Чат</b>: {link.format(event.chat.to_dict()['username'] if str(event.chat.to_dict()['id']) not in map(str, private_channels_ids.values()) else list(private_channels_ids.keys())[list(map(str, private_channels_ids.values())).index(str(event.chat.to_dict()['id']))])}{event.chat.to_dict()['title']}</a>"""
     print(4, config.chats)
     for chat in config.chats:
         print(chat, private_channels_ids)
@@ -98,7 +101,7 @@ async def handler(event):
             else:
                 entity = await client.get_entity(chat)
                 await client.send_message(entity = entity,message=message, parse_mode='html', link_preview=False)
-        await asyncio.sleep(30)
+        await asyncio.sleep(randint(60, 120))
 
 async def check_chats():
     global chats
