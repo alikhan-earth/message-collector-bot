@@ -4,6 +4,7 @@ nest_asyncio.apply()
 import os
 import asyncio
 from pprint import pprint
+from traceback import format_exc
 
 from telethon import TelegramClient, events
 from telethon import functions
@@ -53,6 +54,7 @@ async def handler(event):
     try:
         user_info = await get_full_user_info(event)
     except:
+        print(format_exc())
         user_info = None
 
     if is_group and user_info:
