@@ -38,24 +38,20 @@ async def get_chat_info(username):
 
 @client.on(events.NewMessage())
 async def handler(event):
-    await asyncio.sleep(40)
-    pprint(event.message.to_dict()) 
-    pprint(event.chat.to_dict())
+    await asyncio.sleep(20)
+
     if not config.bot_enabled:
         return
-
-    if not event.chat: return
-
+    
     if event.chat.to_dict()['username'] not in config.monitoring_chats and event.chat.to_dict()['id'] not in private_channels_ids.values():
         return
     
     is_group = event.chat.to_dict()['gigagroup'] or event.chat.to_dict()['megagroup']
-    print(event.message.from_id.user_id)
-    if not event.message.to_dict()['from_id']['user_id']:
+
+    if not event.message.to_dict()['from_id']:
         user_info = None
     else:
-        user_info = await get_full_user_info(event)
-
+        user_info = await event.get_sender()
     if is_group and user_info:
         if user_info.username in config.black_list:
             return
@@ -63,9 +59,7 @@ async def handler(event):
     for word in config.stop_words:
         if word in event.message.text.lower():
             return
-    print(event.message.text.lower())
     for word in config.key_words:
-        print(word.lower())
         if word.lower() in event.message.text.lower():
             break
     else:
@@ -83,7 +77,8 @@ async def handler(event):
     if config.send_mode == 'forwarding':
         user_link = """<a href="http://t.me/{0}">{1}</a>"""
         link = """<a href="http://t.me/{0}\""""
-        message += f"""\n\n<b>Пользователь</b>: {'Отсутствует' if not user_info else user_link.format(user_info.username, user_info.username)}\n<b>Чат</b>: {link.format(event.chat.to_dict()['username']) if str(event.chat.to_dict()['id']) not in map(str, private_channels_ids.values()) else private_channels_ids[private_channels_ids.keys()[list(map(str, private_channels_ids.values())).index(str(event.chat.to_dict()['id']))]]}>{event.chat.to_dict()['title']}</a>"""
+
+        message += f"""\n\n<b>Пользователь</b>: {'Отсутствует' if not user_info else user_link.format(user_info.username, user_info.username)}\n<b>Чат</b>: <a href="{'http://t.me/' + link.format(event.chat.to_dict()['username']) if str(event.chat.to_dict()['id']) not in map(str, private_channels_ids.values()) else list(private_channels_ids.keys())[list(map(str, private_channels_ids.values())).index(str(event.chat.to_dict()['id']))]}">{event.chat.to_dict()['title']}</a>"""
     print(4, config.chats)
     for chat in config.chats:
         print(chat, private_channels_ids)
@@ -117,6 +112,9 @@ async def check_chats():
 
                 try:
                     await client(JoinChannelRequest(chat))
+                    if '+' in chat or 'joinchat' in chat:
+                        chat_id = (await get_chat_info(chat))['id']
+                        private_channels_ids[chat] = chat_id
                 except (ChannelPrivateError, ValueError):
                     result = await client(ImportChatInviteRequest(chat[chat.index('A'):] if '+' not in chat else chat[chat.rindex('/')+2:]))
                     result_dict = result.to_dict()
