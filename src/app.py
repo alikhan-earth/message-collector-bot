@@ -51,11 +51,10 @@ async def handler(event):
     
     is_group = event.chat.to_dict()['gigagroup'] or event.chat.to_dict()['megagroup']
     print(event.message.from_id.user_id)
-    try:
-        user_info = await get_full_user_info(event)
-    except:
-        print(format_exc())
+    if not event.message.to_dict()['from_id']['user_id']:
         user_info = None
+    else:
+        user_info = await get_full_user_info(event)
 
     if is_group and user_info:
         if user_info.username in config.black_list:
@@ -84,7 +83,7 @@ async def handler(event):
     if config.send_mode == 'forwarding':
         user_link = """<a href="http://t.me/{0}">{1}</a>"""
         link = """<a href="http://t.me/{0}\""""
-        message += f"""\n\n<b>Пользователь</b>: {'Удалено' if not user_info else user_link.format(user_info.username, user_info.username)}\n<b>Чат</b>: {link.format(event.chat.to_dict()['username']) if str(event.chat.to_dict()['id']) not in map(str, private_channels_ids.values()) else private_channels_ids[private_channels_ids.keys()[list(map(str, private_channels_ids.values())).index(str(event.chat.to_dict()['id']))]]}>{event.chat.to_dict()['title']}</a>"""
+        message += f"""\n\n<b>Пользователь</b>: {'Отсутствует' if not user_info else user_link.format(user_info.username, user_info.username)}\n<b>Чат</b>: {link.format(event.chat.to_dict()['username']) if str(event.chat.to_dict()['id']) not in map(str, private_channels_ids.values()) else private_channels_ids[private_channels_ids.keys()[list(map(str, private_channels_ids.values())).index(str(event.chat.to_dict()['id']))]]}>{event.chat.to_dict()['title']}</a>"""
     print(4, config.chats)
     for chat in config.chats:
         print(chat, private_channels_ids)
