@@ -3,6 +3,7 @@ nest_asyncio.apply()
 
 import os
 import asyncio
+from pprint import pprint
 
 from telethon import TelegramClient, events
 from telethon import functions
@@ -37,7 +38,8 @@ async def get_chat_info(username):
 @client.on(events.NewMessage())
 async def handler(event):
     await asyncio.sleep(40)
-    print(event.message.to_dict(), event.chat.to_dict())
+    pprint(event.message.to_dict()) 
+    pprint(event.chat.to_dict())
     if not config.bot_enabled:
         return
 
