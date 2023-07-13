@@ -125,7 +125,7 @@ async def check_chats():
                     continue
 
                 try:
-                    await client(JoinChannelRequest(chat))
+                    await client(JoinChannelRequest(chat.replace('/+', '/joinchat/')))
                     if '+' in chat or 'joinchat' in chat:
                         chat_id = (await get_chat_info(chat))['id']
                         private_channels_ids[chat] = chat_id
