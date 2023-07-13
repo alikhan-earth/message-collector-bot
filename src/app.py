@@ -80,8 +80,8 @@ async def handler(event):
     config.messages.append(message)
     print(user_info)
     if config.send_mode == 'forwarding':
-        user_link = """**[{0}](http://t.me/{1})**"""
-        link = """**[@{0}]({1})**"""
+        user_link = """**[@{0}](http://t.me/{1})**"""
+        link = """**[{0}]({1})**"""
         message_link = None
         chat = f"@{event.chat.to_dict()['username']}" if event.chat.to_dict()['username'] else list(private_channels_ids.keys())[list(map(str, private_channels_ids.values())).index(str(event.chat.to_dict()['id']))]
 
@@ -92,7 +92,7 @@ async def handler(event):
         elif is_group and ('AAAAA' in chat and 'joinchat' in chat or '+' in chat):
             message_link = list(private_channels_ids.keys())[list(map(str, private_channels_ids.values())).index(str(event.chat.to_dict()['id']))]
 
-        message += f"""\n\n👤: {'`Отсутствует`' if not user_info['username'] else user_link.format(user_info['username'], user_info['username'])}\n💬: {link.format(chat, message_link)}"""
+        message += f"""\n\n👤 {'`Отсутствует`' if not user_info['username'] else user_link.format(user_info['username'], user_info['username'])}\n💬 {link.format(chat, message_link)}"""
     print(4, config.chats)
     for chat in config.chats:
         print(chat, private_channels_ids)
