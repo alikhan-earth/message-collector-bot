@@ -12,7 +12,6 @@ from telethon import functions
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl.functions.messages import ImportChatInviteRequest
 from telethon.errors.rpcerrorlist import UsernameInvalidError, ChannelPrivateError
-from telethon.errors.rpcerrorlist import InviteHashExpiredError
 
 import config
 from bot import dp, bot
@@ -116,49 +115,57 @@ async def handler(event):
         await asyncio.sleep(randint(60, 240))
 
 async def check_chats():
-    global chats
-    while True:
-        chat_set = set(config.monitoring_chats) - set(chats)
+    try:
+        global chats
+        while True:
+            chat_set = set(config.monitoring_chats) - set(chats)
 
-        if len(chat_set):
-            for chat in set(config.monitoring_chats) - set(chats):
-                if chat in config.monitoring_chats and chat in chats:
-                    continue
+            if len(chat_set):
+                for chat in set(config.monitoring_chats) - set(chats):
+                    if chat in config.monitoring_chats and chat in chats:
+                        continue
 
-                try:
-                    print(chat.replace('/+', '/joinchat/'))
-                    await client(JoinChannelRequest(chat.replace('/+', '/joinchat/')))
-                    if '+' in chat or 'joinchat' in chat:
-                        chat_id = (await get_chat_info(chat))['id']
-                        private_channels_ids[chat] = chat_id
-                except InviteHashExpiredError:
-                    config.monitoring_chats.remove(chat)
-                    continue
-                except (ChannelPrivateError, ValueError):
-                    result = await client(ImportChatInviteRequest(chat[chat.index('A'):] if '+' not in chat else chat[chat.rindex('/')+2:]))
-                    result_dict = result.to_dict()
-                    print('result_dict', result_dict)
-                    if len(result_dict['chats']):
-                        private_channels_ids[chat] = result_dict['chats'][0]['id']
-            chats = config.monitoring_chats[:]
-        
-        to_delete = []
+                    try:
+                        await client(JoinChannelRequest(chat))
+                        if '+' in chat or 'joinchat' in chat:
+                            chat_id = (await get_chat_info(chat))['id']
+                            private_channels_ids[chat] = chat_id
+                    except (ChannelPrivateError, ValueError):
+                        result = await client(ImportChatInviteRequest(chat[chat.index('A'):] if '+' not in chat else chat[chat.rindex('/')+2:]))
+                        result_dict = result.to_dict()
+                        print('result_dict', result_dict)
+                        if len(result_dict['chats']):
+                            private_channels_ids[chat] = result_dict['chats'][0]['id']
+                chats = config.monitoring_chats[:]
+            
+            to_delete = []
 
-        for key in private_channels_ids.keys():
-            if key not in config.monitoring_chats:
-                to_delete.append(key)
+            for key in private_channels_ids.keys():
+                if key not in config.monitoring_chats:
+                    to_delete.append(key)
 
-        for key in to_delete:
-            del private_channels_ids[key]
-        await asyncio.sleep(20)
+            for key in to_delete:
+                del private_channels_ids[key]
+            await asyncio.sleep(20)
+    except:
+        with open(f'{randint(1, 100000)}.txt', 'w') as file:
+            file.write(format_exc())
 
 
 async def start_handle():
-    await client.run_until_disconnected()
+    try:
+        await client.run_until_disconnected()
+    except:
+        with open(f'{randint(1, 100000)}.txt', 'w') as file:
+            file.write(format_exc())
 
 
 async def start_bot():
-    await dp.start_polling(bot, skip_updates=True)
+    try:
+        await dp.start_polling(bot, skip_updates=True)
+    except:
+        with open(f'{randint(1, 100000)}.txt', 'w') as file:
+            file.write(format_exc())
 
 
 async def main():
