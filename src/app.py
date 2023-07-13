@@ -12,6 +12,7 @@ from telethon import functions
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl.functions.messages import ImportChatInviteRequest
 from telethon.errors.rpcerrorlist import UsernameInvalidError, ChannelPrivateError
+from telethon.errors.rpcerrorlist import InviteHashExpiredError
 
 import config
 from bot import dp, bot
@@ -130,6 +131,9 @@ async def check_chats():
                     if '+' in chat or 'joinchat' in chat:
                         chat_id = (await get_chat_info(chat))['id']
                         private_channels_ids[chat] = chat_id
+                except InviteHashExpiredError:
+                    config.monitoring_chats.remove(chat)
+                    continue
                 except (ChannelPrivateError, ValueError):
                     result = await client(ImportChatInviteRequest(chat[chat.index('A'):] if '+' not in chat else chat[chat.rindex('/')+2:]))
                     result_dict = result.to_dict()
