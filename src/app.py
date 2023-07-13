@@ -41,7 +41,7 @@ async def get_chat_info(username):
 async def handler(event):
     print(event.chat.to_dict())
     print(event.message.to_dict())
-    await asyncio.sleep(20)
+    await asyncio.sleep(randint(60, 300))
 
     if not event.chat: return
 
@@ -112,7 +112,7 @@ async def handler(event):
             else:
                 entity = await client.get_entity(chat)
                 await client.send_message(entity = entity,message=message, parse_mode='markdown', link_preview=False)
-        await asyncio.sleep(randint(60, 120))
+        await asyncio.sleep(randint(60, 240))
 
 async def check_chats():
     global chats
