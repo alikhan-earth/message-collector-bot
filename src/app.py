@@ -39,7 +39,9 @@ async def get_chat_info(username):
 
 @client.on(events.NewMessage())
 async def handler(event):
-    await asyncio.sleep(randint(60, 150))
+    print(event.chat.to_dict())
+    print(event.message.to_dict())
+    await asyncio.sleep(20)
 
     if not event.chat: return
 
@@ -52,11 +54,11 @@ async def handler(event):
     is_group = event.chat.to_dict()['gigagroup'] or event.chat.to_dict()['megagroup']
 
     if not event.message.to_dict()['from_id']:
-        user_info = None
+        user_info = {'username': None}
     else:
-        user_info = await event.get_sender()
+        user_info = {'username': (await event.get_sender()).username}
     if is_group and user_info:
-        if user_info.username in config.black_list:
+        if user_info['username'] in config.black_list:
             return
     print(1)
     for word in config.stop_words:
@@ -78,29 +80,38 @@ async def handler(event):
     config.messages.append(message)
     print(user_info)
     if config.send_mode == 'forwarding':
-        user_link = """<a href="http://t.me/{0}">@{1}</a>"""
-        link = """<a href="http://t.me/{0}\">"""
+        user_link = """**[{0}](http://t.me/{1})**"""
+        link = """**[@{0}]({1})**"""
+        message_link = None
+        chat = f"@{event.chat.to_dict()['username']}" if event.chat.to_dict()['username'] else list(private_channels_ids.keys())[list(map(str, private_channels_ids.values())).index(str(event.chat.to_dict()['id']))]
 
-        message += f"""\n\n<b>Пользователь</b>: {'<code>Отсутствует</code>' if not user_info.username else user_link.format(f'user_info.username', user_info.username)}\n<b>Чат</b>: {link.format(event.chat.to_dict()['username'] if str(event.chat.to_dict()['id']) not in map(str, private_channels_ids.values()) else list(private_channels_ids.keys())[list(map(str, private_channels_ids.values())).index(str(event.chat.to_dict()['id']))])}{event.chat.to_dict()['title']}</a>"""
+        if not is_group and ('AAAAA' in chat and 'joinchat' in chat or '+' in chat):
+            message_link = f"https://t.me/c/{event.chat.to_dict()['id']}/{event.message.to_dict()['id']}"
+        elif not ('AAAAA' in chat and 'joinchat' in chat or '+' in chat):
+            message_link = f"https://t.me/{event.chat.to_dict()['username']}/{event.message.to_dict()['id']}"
+        elif is_group and ('AAAAA' in chat and 'joinchat' in chat or '+' in chat):
+            message_link = list(private_channels_ids.keys())[list(map(str, private_channels_ids.values())).index(str(event.chat.to_dict()['id']))]
+
+        message += f"""\n\n👤: {'`Отсутствует`' if not user_info['username'] else user_link.format(user_info['username'], user_info['username'])}\n💬: {link.format(chat, message_link)}"""
     print(4, config.chats)
     for chat in config.chats:
         print(chat, private_channels_ids)
         if 'AAAAA' in chat and 'joinchat' in chat or '+' in chat:
             print('\nyeah\n')
             try:
-                await bot.send_message('-100' + private_channels_ids[chat], message, parse_mode='html', disable_web_page_preview=True)
+                await bot.send_message('-100' + private_channels_ids[chat], message, parse_mode='markdown', disable_web_page_preview=True)
             except:
                 entity = await client.get_entity(chat)
-                await client.send_message(entity = entity,message=message, parse_mode='html', link_preview=False)
+                await client.send_message(entity = entity,message=message, parse_mode='markdown', link_preview=False)
         else:
             print('\nno\n')
             chat_id = (await get_chat_info(chat))
 
             if chat_id['gigagroup'] or chat_id['megagroup']:
-                await bot.send_message('-100' + str(chat_id['id']), message, parse_mode='html', disable_web_page_preview=True)
+                await bot.send_message('-100' + str(chat_id['id']), message, parse_mode='markdown', disable_web_page_preview=True)
             else:
                 entity = await client.get_entity(chat)
-                await client.send_message(entity = entity,message=message, parse_mode='html', link_preview=False)
+                await client.send_message(entity = entity,message=message, parse_mode='markdown', link_preview=False)
         await asyncio.sleep(randint(60, 120))
 
 async def check_chats():
