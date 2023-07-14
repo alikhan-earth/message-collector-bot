@@ -84,18 +84,18 @@ async def handler(event):
         message_link = None
         chat = f"@{event.chat.to_dict()['username']}" if event.chat.to_dict()['username'] else list(private_channels_ids.keys())[list(map(str, private_channels_ids.values())).index(str(event.chat.to_dict()['id']))]
 
-        if not is_group and ('AAAAA' in chat and 'joinchat' in chat or '+' in chat):
+        if not is_group and ('joinchat' in chat or '+' in chat):
             message_link = f"https://t.me/c/{event.chat.to_dict()['id']}/{event.message.to_dict()['id']}"
-        elif not ('AAAAA' in chat and 'joinchat' in chat or '+' in chat):
+        elif not ('joinchat' in chat or '+' in chat):
             message_link = f"https://t.me/{event.chat.to_dict()['username']}/{event.message.to_dict()['id']}"
-        elif is_group and ('AAAAA' in chat and 'joinchat' in chat or '+' in chat):
+        elif is_group and ('joinchat' in chat or '+' in chat):
             message_link = list(private_channels_ids.keys())[list(map(str, private_channels_ids.values())).index(str(event.chat.to_dict()['id']))]
 
         message += f"""\n\n👤 {'`Отсутствует`' if not user_info['username'] else user_link.format(user_info['username'], user_info['username'])}\n💬 {link.format(chat, message_link)}"""
     print(4, config.chats)
     for chat in config.chats:
         print(chat, private_channels_ids)
-        if 'AAAAA' in chat and 'joinchat' in chat or '+' in chat:
+        if 'joinchat' in chat or '+' in chat:
             print('\nyeah\n')
             try:
                 await bot.send_message('-100' + private_channels_ids[chat], message, parse_mode='markdown', disable_web_page_preview=True)
