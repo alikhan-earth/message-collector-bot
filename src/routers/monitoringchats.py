@@ -21,7 +21,7 @@ class MonitoringChatsState(StatesGroup):
 def check_chat(chat):
     if '+' in chat:
         return chat
-    if 'AAAAA' in chat and 'joinchat' in chat:
+    if 'joinchat' in chat:
         return chat
     return chat.replace('http://t.me', '').replace('https://t.me', '').replace('/', '').replace('@', '').strip()
     
