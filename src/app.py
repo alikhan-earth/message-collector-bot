@@ -41,7 +41,6 @@ async def get_chat_info(username):
 @client.on(events.NewMessage())
 async def handler(event):
     await asyncio.sleep(randint(60, 300))
-    print(event.chat.to_dict())
     if not event.chat: return
 
     if not config.bot_enabled:
@@ -131,7 +130,6 @@ async def check_chats():
                         if '+' in chat or 'joinchat' in chat:
                             chat_id = (await get_chat_info(chat))['id']
                             private_channels_ids[chat] = chat_id
-                        await asyncio.sleep(randint(60, 240))
                     except InviteHashExpiredError:
                         config.monitoring_chats.remove(chat)
                         continue
@@ -151,7 +149,7 @@ async def check_chats():
 
             for key in to_delete:
                 del private_channels_ids[key]
-            await asyncio.sleep(20)
+            await asyncio.sleep(5)
     except:
         with open(f'{randint(1, 100000)}.txt', 'w') as file:
             file.write(format_exc())
