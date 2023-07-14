@@ -41,6 +41,7 @@ async def get_chat_info(username):
 @client.on(events.NewMessage())
 async def handler(event):
     await asyncio.sleep(randint(60, 300))
+    print(1, event.chat.to_dict()['username'] not in config.monitoring_chats, event.chat.to_dict()['id'] not in private_channels_ids.values())
     if not event.chat: return
 
     if not config.bot_enabled:
@@ -55,6 +56,7 @@ async def handler(event):
         user_info = {'username': None}
     else:
         user_info = {'username': (await event.get_sender()).username}
+    print(2, is_group, user_info)
     if is_group and user_info:
         if user_info['username'] in config.black_list:
             return
