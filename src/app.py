@@ -120,6 +120,7 @@ async def check_chats():
             chat_set = set(config.monitoring_chats) - set(chats)
 
             if len(chat_set):
+                print(chat_set)
                 for chat in set(config.monitoring_chats) - set(chats):
                     if chat in config.monitoring_chats and chat in chats:
                         continue
