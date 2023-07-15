@@ -61,7 +61,7 @@ async def handler(event):
     if is_group and user_info:
         if user_info['username'] in config.black_list:
             return
-    print(1)
+    print(1, config.stop_words, config.key_words, event.message.text.lower())
     for word in config.stop_words:
         if word in event.message.text.lower():
             return
