@@ -41,7 +41,7 @@ async def get_chat_info(username):
 @client.on(events.NewMessage())
 async def handler(event):
     await asyncio.sleep(randint(60, 300))
-    print(event.chat.to_dict()['username'], private_channels_ids)
+    print(event.chat.to_dict()['username'], private_channels_ids, config.monitoring_chats)
     print(1, event.chat.to_dict()['username'] not in config.monitoring_chats, event.chat.to_dict()['id'] not in private_channels_ids.values())
     if not event.chat: return
 
@@ -133,7 +133,9 @@ async def check_chats():
                         if '+' in chat or 'joinchat' in chat:
                             chat_id = (await get_chat_info(chat))['id']
                             private_channels_ids[chat] = chat_id
+                        print('+')
                     except InviteHashExpiredError:
+                        print('-')
                         config.monitoring_chats.remove(chat)
                         continue
                     except (ChannelPrivateError, ValueError):
