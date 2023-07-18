@@ -70,30 +70,38 @@ async def user_input(message: types.Message, state: FSMContext):
 
 @router.callback_query(filters.Text('chat_list'))
 async def chat_list(callback: types.CallbackQuery):
-    msg = '🗂️ Список чатов:\n\n'
+    msgs = ['🗂️ Список чатов:\n\n']
 
     for index, chat in enumerate(config.chats):
-        msg += f"""{index+1}. <a href="{'http://t.me/' + chat if 'joinchat' not in chat and '+' not in chat else chat}">{chat}</a>\n"""
+        if len(msgs[-1]) < 50:
+            msgs[-1] += f"""{index+1}. <a href="{'http://t.me/' + chat if 'joinchat' not in chat and '+' not in chat else chat}">{chat}</a>\n"""
+        else:
+            msgs.append('')
 
     if (not len(config.chats)):
-        msg += 'Список пуст.'
+        msgs[-1] += 'Список пуст.'
 
-    await callback.message.answer(msg, 'html', disable_web_page_preview=True)
+    for msg in msgs:
+        await callback.message.answer(msg, 'html', disable_web_page_preview=True)
 
 
 @router.callback_query(filters.Text('delete_chat'))
 async def delete_chat(callback: types.CallbackQuery, state: FSMContext):
-    msg = '🗑 Укажите номер чата, который нужно удалить (можно несколько, через запятую)\n\n'
+    msgs = ['🗑 Укажите номер чата, который нужно удалить (можно несколько, через запятую)\n\n']
 
     for index, chat in enumerate(config.chats):
-        msg += f"""{index+1}. <a href="{'http://t.me/' + chat if 'joinchat' not in chat and '+' not in chat else chat}">{chat.strip()}</a>\n"""
+        if len(msgs[-1]) < 50:
+            msgs[-1] += f"""{index+1}. <a href="{'http://t.me/' + chat if 'joinchat' not in chat and '+' not in chat else chat}">{chat.strip()}</a>\n"""
+        else:
+            msgs.append('')
 
     if (not len(config.chats)):
         await callback.message.answer('Нет чатов для удаления.')
         return
 
     markup = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='❌ Отмена')]], resize_keyboard=True)
-    await callback.message.answer(msg, 'html', disable_web_page_preview=True, reply_markup=markup)
+    for msg in msgs:
+        await callback.message.answer(msg, 'html', disable_web_page_preview=True, reply_markup=markup)
     await state.set_state(ChatsState.delete)
 
 
