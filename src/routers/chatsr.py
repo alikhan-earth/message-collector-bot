@@ -73,7 +73,7 @@ async def chat_list(callback: types.CallbackQuery):
     msgs = ['🗂️ Список чатов:\n\n']
 
     for index, chat in enumerate(config.chats):
-        if len(msgs[-1]) < 50:
+        if len(msgs[-1]) < 2250:
             msgs[-1] += f"""{index+1}. <a href="{'http://t.me/' + chat if 'joinchat' not in chat and '+' not in chat else chat}">{chat}</a>\n"""
         else:
             msgs.append('')
@@ -90,7 +90,7 @@ async def delete_chat(callback: types.CallbackQuery, state: FSMContext):
     msgs = ['🗑 Укажите номер чата, который нужно удалить (можно несколько, через запятую)\n\n']
 
     for index, chat in enumerate(config.chats):
-        if len(msgs[-1]) < 50:
+        if len(msgs[-1]) < 2250:
             msgs[-1] += f"""{index+1}. <a href="{'http://t.me/' + chat if 'joinchat' not in chat and '+' not in chat else chat}">{chat.strip()}</a>\n"""
         else:
             msgs.append('')
