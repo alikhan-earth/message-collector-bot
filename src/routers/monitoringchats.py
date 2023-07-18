@@ -87,6 +87,7 @@ async def monitoring_chat_list(callback: types.CallbackQuery):
             msgs[-1] += f"""{index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and '+' not in monitoring_chat else monitoring_chat}">{monitoring_chat}</a> {'(ожидает добавления)' if monitoring_chat in to_append_chats else ''}\n"""
         else:
             msgs.append('')
+            msgs[-1] += f"""{index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and '+' not in monitoring_chat else monitoring_chat}">{monitoring_chat}</a> {'(ожидает добавления)' if monitoring_chat in to_append_chats else ''}\n"""
 
     if (not len(config.monitoring_chats + to_append_chats)):
         msgs[-1] += 'Список пуст.'
@@ -104,6 +105,7 @@ async def delete_monitoring_chat(callback: types.CallbackQuery, state: FSMContex
             msgs[-1] += f"""{index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and '+' not in monitoring_chat else monitoring_chat}">{monitoring_chat}</a> {'(ожидает добавления)' if monitoring_chat in to_append_chats else ''}\n"""
         else:
             msgs.append('')
+            msgs[-1] += f"""{index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and '+' not in monitoring_chat else monitoring_chat}">{monitoring_chat}</a> {'(ожидает добавления)' if monitoring_chat in to_append_chats else ''}\n"""
 
     if (not len(config.monitoring_chats + to_append_chats)):
         await callback.message.answer('Нет чатов для удаления.')

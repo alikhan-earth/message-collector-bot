@@ -62,29 +62,39 @@ async def user_input(message: types.Message, state: FSMContext):
 
 @router.callback_query(filters.Text('black_list_list'))
 async def black_list_list(callback: types.CallbackQuery):
-    msg = '🚷 Черный список:\n\n'
+    msgs = ['🚷 Черный список:\n\n']
 
     for index, user_id in enumerate(config.black_list):
-        msg += f"""{index+1}. <a href="http://t.me/{user_id}">{user_id}</a>\n"""
+        if len(msgs[-1]) < 2250:
+            msgs[-1] += f"""{index+1}. <a href="http://t.me/{user_id}">{user_id}</a>\n"""
+        else:
+            msgs.append('')
+            msgs[-1] += f"""{index+1}. <a href="http://t.me/{user_id}">{user_id}</a>\n"""
      
     if (not len(config.black_list)):
-        msg += 'Список пуст.'
+        msgs[-1] += 'Список пуст.'
 
-    await callback.message.answer(msg, 'html', disable_web_page_preview=True)
+    for msg in msgs:
+        await callback.message.answer(msg, 'html', disable_web_page_preview=True)
 
 
 @router.callback_query(filters.Text('delete_black_list'))
 async def delete_key_word(callback: types.CallbackQuery, state: FSMContext):
-    msg = '🗑 Укажите номер пользователя, которого нужно удалить (можно несколько, через запятую)\n\n'
+    msgs = ['🗑 Укажите номер пользователя, которого нужно удалить (можно несколько, через запятую)\n\n']
 
     for index, user_id in enumerate(config.black_list):
-        msg += f"""{index+1}. <a href="http://t.me/{user_id}">{user_id}</a>\n"""
+        if len(msgs[-1]) < 2250:
+            msgs[-1] += f"""{index+1}. <a href="http://t.me/{user_id}">{user_id}</a>\n"""
+        else:
+            msgs.append('')
+            msgs[-1] += f"""{index+1}. <a href="http://t.me/{user_id}">{user_id}</a>\n"""
      
     if (not len(config.black_list)):
         await callback.message.answer('Нет пользователей для удаления.')
         return
     reply_markup = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='❌ Отмена')]], resize_keyboard=True)
-    await callback.message.answer(msg, 'html', disable_web_page_preview=True, reply_markup=reply_markup)
+    for msg in msgs:
+        await callback.message.answer(msg, 'html', disable_web_page_preview=True, reply_markup=reply_markup)
     await state.set_state(BlackListState.delete)
 
 

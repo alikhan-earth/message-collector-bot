@@ -62,29 +62,39 @@ async def user_input(message: types.Message, state: FSMContext):
 
 @router.callback_query(filters.Text('key_word_list'))
 async def key_word_list(callback: types.CallbackQuery):
-     msg = '🔑 Список ключевых слов:\n\n'
+    msgs = ['🔑 Список ключевых слов:\n\n']
 
-     for index, key_word in enumerate(config.key_words):
-        msg += f'{index+1}. {key_word}\n'
+    for index, key_word in enumerate(config.key_words):
+        if len(msgs[-1]) < 2250:
+            msgs[-1] += f'{index+1}. {key_word}\n'
+        else:
+            msgs.append('')
+            msgs[-1] += f'{index+1}. {key_word}\n'
      
-     if (not len(config.key_words)):
-        msg += 'Список пуст.'
-
-     await callback.message.answer(msg)
+    if (not len(config.key_words)):
+        msgs[-1] += 'Список пуст.'
+    
+    for msg in msgs:
+        await callback.message.answer(msg)
 
 
 @router.callback_query(filters.Text('delete_key_word'))
 async def delete_key_word(callback: types.CallbackQuery, state: FSMContext):
-    msg = '🗑 Укажите номер слова, которое нужно удалить (можно несколько, через запятую)\n\n'
+    msgs = ['🗑 Укажите номер слова, которое нужно удалить (можно несколько, через запятую)\n\n']
 
     for index, key_word in enumerate(config.key_words):
-        msg += f'{index+1}. {key_word}\n'
+        if len(msgs[-1]) < 2250:
+            msgs[-1] += f'{index+1}. {key_word}\n'
+        else:
+            msgs.append('')
+            msgs[-1] += f'{index+1}. {key_word}\n'
      
     if (not len(config.key_words)):
         await callback.message.answer('Нет слов для удаления.')
         return
     markup = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='❌ Отмена')]], resize_keyboard=True)
-    await callback.message.answer(msg, reply_markup=markup)
+    for msg in msgs:
+        await callback.message.answer(msg, reply_markup=markup)
     await state.set_state(KeyWordsState.delete)
 
 

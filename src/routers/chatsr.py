@@ -77,6 +77,7 @@ async def chat_list(callback: types.CallbackQuery):
             msgs[-1] += f"""{index+1}. <a href="{'http://t.me/' + chat if 'joinchat' not in chat and '+' not in chat else chat}">{chat}</a>\n"""
         else:
             msgs.append('')
+            msgs[-1] += f"""{index+1}. <a href="{'http://t.me/' + chat if 'joinchat' not in chat and '+' not in chat else chat}">{chat}</a>\n"""
 
     if (not len(config.chats)):
         msgs[-1] += 'Список пуст.'
@@ -94,6 +95,7 @@ async def delete_chat(callback: types.CallbackQuery, state: FSMContext):
             msgs[-1] += f"""{index+1}. <a href="{'http://t.me/' + chat if 'joinchat' not in chat and '+' not in chat else chat}">{chat.strip()}</a>\n"""
         else:
             msgs.append('')
+            msgs[-1] += f"""{index+1}. <a href="{'http://t.me/' + chat if 'joinchat' not in chat and '+' not in chat else chat}">{chat}</a>\n"""
 
     if (not len(config.chats)):
         await callback.message.answer('Нет чатов для удаления.')
