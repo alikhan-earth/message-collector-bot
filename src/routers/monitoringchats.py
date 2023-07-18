@@ -80,38 +80,37 @@ async def user_input(message: types.Message, state: FSMContext):
 
 @router.callback_query(filters.Text('monitoring_chat_list'))
 async def monitoring_chat_list(callback: types.CallbackQuery):
-    msg = '🗂️ Список чатов для мониторинга:\n\n'
-    last_index = 0
-    for index, monitoring_chat in enumerate(config.monitoring_chats):
-        msg += f"""{index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and '+' not in monitoring_chat else monitoring_chat}">{monitoring_chat}</a>\n"""
-        last_index = index + 1
+    msgs = ['🗂️ Список чатов для мониторинга:\n\n']
 
-    for index, to_append_chat in enumerate(to_append_chats):
-        msg += f"""{last_index+index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and '+' not in monitoring_chat else monitoring_chat}">{to_append_chat}</a> (ожидает добавления)\n"""
-
+    for index, monitoring_chat in enumerate(config.monitoring_chats + to_append_chats):
+        if len(msgs[-1]) < 2250:
+            msgs[-1] += f"""{index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and '+' not in monitoring_chat else monitoring_chat}">{monitoring_chat}</a> {'(ожидает добавления)' if monitoring_chat in to_append_chats else ''}\n"""
+        else:
+            msgs.append('')
 
     if (not len(config.monitoring_chats + to_append_chats)):
-        msg += 'Список пуст.'
+        msgs[-1] += 'Список пуст.'
 
-    await callback.message.answer(msg, 'html', disable_web_page_preview=True)
+    for msg in msgs:
+        await callback.message.answer(msg, 'html', disable_web_page_preview=True)
 
 
 @router.callback_query(filters.Text('delete_monitoring_chat'))
 async def delete_monitoring_chat(callback: types.CallbackQuery, state: FSMContext):
-    msg = '🗑 Укажите чаты, которые нужно удалить\n\n'
-    last_index = 0
-    for index, monitoring_chat in enumerate(config.monitoring_chats):
-        msg += f"""{index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and '+' not in monitoring_chat else monitoring_chat}">{monitoring_chat}</a>\n"""
-        last_index = index+1
-    
-    for index, to_append_chat in enumerate(to_append_chats):
-        msg += f"""{last_index+index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and '+' not in monitoring_chat else monitoring_chat}">{to_append_chat}</a> (ожидает добавления)\n"""
+    msgs = ['🗑 Укажите чаты, которые нужно удалить\n\n']
+
+    for index, monitoring_chat in enumerate(config.monitoring_chats + to_append_chats):
+        if len(msgs[-1]) < 2250:
+            msgs[-1] += f"""{index+1}. <a href="{'http://t.me/' + monitoring_chat if 'joinchat' not in monitoring_chat and '+' not in monitoring_chat else monitoring_chat}">{monitoring_chat}</a> {'(ожидает добавления)' if monitoring_chat in to_append_chats else ''}\n"""
+        else:
+            msgs.append('')
 
     if (not len(config.monitoring_chats + to_append_chats)):
         await callback.message.answer('Нет чатов для удаления.')
         return
     markup = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='❌ Отмена')]], resize_keyboard=True)
-    await callback.message.answer(msg, 'html', disable_web_page_preview=True, reply_markup=markup)
+    for msg in msgs:
+        await callback.message.answer(msg, 'html', disable_web_page_preview=True, reply_markup=markup)
     await state.set_state(MonitoringChatsState.delete)
 
 
