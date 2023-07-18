@@ -65,7 +65,7 @@ async def stop_word_list(callback: types.CallbackQuery):
     msgs = ['🔴 Список стоп-слов:\n\n']
 
     for index, stop_word in enumerate(config.stop_words):
-        if len(msgs[-1] < 2250):
+        if len(msgs[-1]) < 2250:
             msgs[-1] += f'{index+1}. {stop_word}\n'
         else:
             msgs.append('')
@@ -83,7 +83,7 @@ async def delete_stop_word(callback: types.CallbackQuery, state: FSMContext):
     msgs = ['🗑 Укажите номер слова, которое нужно удалить (можно несколько, через запятую)\n\n']
 
     for index, stop_word in enumerate(config.stop_words):
-        if len(msgs[-1] < 2250):
+        if len(msgs[-1]) < 2250:
             msgs[-1] += f'{index+1}. {stop_word}\n'
         else:
             msgs.append('')
