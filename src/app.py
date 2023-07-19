@@ -154,6 +154,7 @@ async def check_chats():
                         printp('result_dict', result_dict)
                         if len(result_dict['chats']):
                             private_channels_ids[chat] = result_dict['chats'][0]['id']
+                    await asyncio.sleep(240)
                 chats = config.monitoring_chats[:]
             
             to_delete = []
