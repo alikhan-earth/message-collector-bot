@@ -16,6 +16,7 @@ from telethon.errors.rpcerrorlist import InviteHashExpiredError
 
 import config
 from bot import dp, bot
+from db import db
 
 API_ID = os.environ['API_ID']
 API_HASH = os.environ['API_HASH']
@@ -145,9 +146,10 @@ async def check_chats():
                     except (InviteHashExpiredError, ValueError):
                         printp('-')
                         config.monitoring_chats.remove(chat)
+                        db.delete('monitoring_chats', 'chat_id', chat)
                         continue
                     except ChannelPrivateError:
-                        result = await client(ImportChatInviteRequest(chat[chat.index('A'):] if '+' not in chat else chat[chat.rindex('/')+2:]))
+                        result = await client(ImportChatInviteRequest(chat[chat.index('/'):].replace('/', '').replace('+', '')))
                         result_dict = result.to_dict()
                         printp('result_dict', result_dict)
                         if len(result_dict['chats']):
