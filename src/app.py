@@ -132,10 +132,7 @@ async def check_chats():
 
             if len(chat_set):
                 printp(chat_set)
-                for chat in set(config.monitoring_chats) - set(chats):
-                    if chat in config.monitoring_chats and chat in chats:
-                        continue
-
+                for chat in chat_set:
                     try:
                         printp(chat)
                         await client(JoinChannelRequest(chat))
