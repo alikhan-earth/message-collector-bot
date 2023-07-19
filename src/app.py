@@ -142,11 +142,11 @@ async def check_chats():
                             chat_id = (await get_chat_info(chat))['id']
                             private_channels_ids[chat] = chat_id
                         printp('+')
-                    except InviteHashExpiredError:
+                    except (InviteHashExpiredError, ValueError):
                         printp('-')
                         config.monitoring_chats.remove(chat)
                         continue
-                    except (ChannelPrivateError, ValueError):
+                    except ChannelPrivateError:
                         result = await client(ImportChatInviteRequest(chat[chat.index('A'):] if '+' not in chat else chat[chat.rindex('/')+2:]))
                         result_dict = result.to_dict()
                         printp('result_dict', result_dict)
