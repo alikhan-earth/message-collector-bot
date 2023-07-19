@@ -12,6 +12,7 @@ from telethon import functions
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl.functions.messages import ImportChatInviteRequest
 from telethon.errors.rpcerrorlist import UsernameInvalidError, ChannelPrivateError
+from telethon.errors.rpcerrorlist import InviteRequestSentError
 from telethon.errors.rpcerrorlist import InviteHashExpiredError
 
 import config
@@ -140,6 +141,8 @@ async def check_chats():
                             chat_id = (await get_chat_info(chat))['id']
                             private_channels_ids[chat] = chat_id
                         printp('+')
+                    except InviteRequestSentError:
+                        continue
                     except (InviteHashExpiredError, ValueError):
                         printp('-')
                         config.monitoring_chats.remove(chat)
