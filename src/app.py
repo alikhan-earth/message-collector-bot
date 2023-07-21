@@ -145,8 +145,17 @@ async def check_chats():
                         continue
                     except (InviteHashExpiredError, ValueError):
                         printp('-')
-                        config.monitoring_chats.remove(chat)
-                        db.delete('monitoring_chats', 'chat_id', chat)
+                        
+                        try:
+                            config.monitoring_chats.remove(chat)
+                        except:
+                            pass
+                        
+                        try:
+                            db.delete('monitoring_chats', 'chat_id', chat)
+                        except:
+                            pass
+
                         continue
                     except ChannelPrivateError:
                         result = await client(ImportChatInviteRequest(chat[chat.index('/'):].replace('/', '').replace('+', '')))
