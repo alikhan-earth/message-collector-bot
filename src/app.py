@@ -48,6 +48,9 @@ async def get_chat_info(username):
     return chat_info.to_dict()['chats'][0]
 
 
+lock = asyncio.Lock()
+
+
 @client.on(events.NewMessage())
 async def handler(event):
     await asyncio.sleep(randint(60, 300))
@@ -82,6 +85,7 @@ async def handler(event):
         if len(config.key_words):
             return
     printp(2, 3)
+    await lock.acquire()
     message = event.message.text.lower().strip()
     printp(message, config.messages, config.duplicate_filter)
     if message in config.messages and config.duplicate_filter:
@@ -89,6 +93,7 @@ async def handler(event):
     printp(3)
 
     config.messages.append(message)
+    await lock.release()
     printp(user_info)
     if config.send_mode == 'forwarding':
         user_link = """**[@{0}](http://t.me/{1})**"""
@@ -143,7 +148,7 @@ async def check_chats():
                         printp('+')
                     except InviteRequestSentError:
                         continue
-                    except (InviteHashExpiredError, ValueError):
+                    except (InviteHashExpiredError, ValueError, TypeError):
                         printp('-')
                         
                         try:
