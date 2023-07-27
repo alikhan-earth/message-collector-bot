@@ -93,7 +93,7 @@ async def handler(event):
     printp(3)
 
     config.messages.append(message)
-    await lock.release()
+    lock.release()
     printp(user_info)
     if config.send_mode == 'forwarding':
         user_link = """**[@{0}](http://t.me/{1})**"""
