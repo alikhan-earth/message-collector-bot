@@ -48,11 +48,15 @@ async def get_chat_info(username):
     return chat_info.to_dict()['chats'][0]
 
 
-lock = asyncio.Lock()
-
-
 @client.on(events.NewMessage())
 async def handler(event):
+    message = event.message.text.lower().strip()
+    printp(message, config.messages, config.duplicate_filter)
+    if message in config.messages and config.duplicate_filter:
+        return
+    printp(3)
+
+    config.messages.append(message)
     await asyncio.sleep(randint(60, 300))
     printp(event.chat.to_dict()['username'], private_channels_ids, config.monitoring_chats)
     printp(1, event.chat.to_dict()['username'] not in config.monitoring_chats, event.chat.to_dict()['id'] not in private_channels_ids.values())
@@ -85,15 +89,7 @@ async def handler(event):
         if len(config.key_words):
             return
     printp(2, 3)
-    await lock.acquire()
-    message = event.message.text.lower().strip()
-    printp(message, config.messages, config.duplicate_filter)
-    if message in config.messages and config.duplicate_filter:
-        return
-    printp(3)
 
-    config.messages.append(message)
-    lock.release()
     printp(user_info)
     if config.send_mode == 'forwarding':
         user_link = """**[@{0}](http://t.me/{1})**"""
