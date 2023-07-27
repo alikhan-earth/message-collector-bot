@@ -27,12 +27,7 @@ private_channels_ids = {}
 client = TelegramClient('session_name', API_ID, API_HASH, system_version="4.16.30-vxALIKHANEEE")
 client.start()
 
-os.system('touch log.txt')
-
 def printp(*values):
-    with open('log.txt', 'a') as file:
-        for value in values:
-            file.write(str(value) + '\n')
     print(*values)
 
 
