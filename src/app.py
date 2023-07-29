@@ -27,9 +27,6 @@ private_channels_ids = {}
 client = TelegramClient('session_name', API_ID, API_HASH, system_version="4.16.30-vxALIKHANEEE")
 client.start()
 
-def printp(*values):
-    print(*values)
-
 
 async def get_full_user_info(event):
     if event.message.to_dict()['from_id']:
@@ -49,12 +46,12 @@ async def handler(event):
 
     if message in config.messages and config.duplicate_filter:
         return
-    printp(3)
+    print(3)
 
     config.messages.append(message)
     await asyncio.sleep(randint(60, 300))
 
-    printp(1, event.chat.to_dict()['username'] not in config.monitoring_chats, event.chat.to_dict()['id'] not in private_channels_ids.values())
+    print(1, event.chat.to_dict()['username'] not in config.monitoring_chats, event.chat.to_dict()['id'] not in private_channels_ids.values())
     if not event.chat: return
 
     if not config.bot_enabled:
@@ -69,11 +66,11 @@ async def handler(event):
         user_info = {'username': None}
     else:
         user_info = {'username': (await event.get_sender()).username}
-    printp(2, is_group, user_info)
+    print(2, is_group, user_info)
     if is_group and user_info:
         if user_info['username'] in config.black_list:
             return
-    printp(1, config.stop_words, config.key_words, event.message.text.lower())
+    print(1, config.stop_words, config.key_words, event.message.text.lower())
     for word in config.stop_words:
         if word in event.message.text.lower():
             return
@@ -83,9 +80,9 @@ async def handler(event):
     else:
         if len(config.key_words):
             return
-    printp(2, 3)
+    print(2, 3)
 
-    printp(user_info)
+    print(user_info)
     if config.send_mode == 'forwarding':
         user_link = """**[@{0}](http://t.me/{1})**"""
         link = """**[{0}]({1})**"""
@@ -100,18 +97,20 @@ async def handler(event):
             message_link = list(private_channels_ids.keys())[list(map(str, private_channels_ids.values())).index(str(event.chat.to_dict()['id']))]
 
         message += f"""\n\n👤 {'`Отсутствует`' if not user_info['username'] else user_link.format(user_info['username'], user_info['username'])}\n💬 {link.format(chat, message_link)}"""
-    printp(4, config.chats)
+    print(4, config.chats)
     for chat in config.chats:
-        printp(chat, private_channels_ids)
+        print(chat, private_channels_ids)
         if 'joinchat' in chat or '+' in chat:
-            printp('\nyeah\n')
+            print('\nyeah\n')
             try:
                 await bot.send_message('-100' + private_channels_ids[chat], message, parse_mode='markdown', disable_web_page_preview=True)
             except:
+                with open('text.txt', 'w') as file:
+                    file.write(format_exc())
                 entity = await client.get_entity(chat)
                 await client.send_message(entity = entity,message=message, parse_mode='markdown', link_preview=False)
         else:
-            printp('\nno\n')
+            print('\nno\n')
             chat_id = (await get_chat_info(chat))
 
             if chat_id['gigagroup'] or chat_id['megagroup']:
@@ -128,19 +127,19 @@ async def check_chats():
             chat_set = set(config.monitoring_chats) - set(chats)
 
             if len(chat_set):
-                printp(chat_set)
+                print(chat_set)
                 for chat in chat_set:
                     try:
-                        printp(chat)
+                        print(chat)
                         await client(JoinChannelRequest(chat))
                         if '+' in chat or 'joinchat' in chat:
                             chat_id = (await get_chat_info(chat))['id']
                             private_channels_ids[chat] = chat_id
-                        printp('+')
+                        print('+')
                     except InviteRequestSentError:
                         continue
                     except (InviteHashExpiredError, ValueError, TypeError):
-                        printp('-')
+                        print('-')
                         
                         try:
                             config.monitoring_chats.remove(chat)
@@ -156,7 +155,7 @@ async def check_chats():
                     except ChannelPrivateError:
                         result = await client(ImportChatInviteRequest(chat[chat.index('/'):].replace('/', '').replace('+', '')))
                         result_dict = result.to_dict()
-                        printp('result_dict', result_dict)
+                        print('result_dict', result_dict)
                         if len(result_dict['chats']):
                             private_channels_ids[chat] = result_dict['chats'][0]['id']
                     await asyncio.sleep(480)
