@@ -46,14 +46,14 @@ async def get_chat_info(username):
 @client.on(events.NewMessage())
 async def handler(event):
     message = event.message.text.lower().strip()
-    printp(message, config.messages, config.duplicate_filter)
+
     if message in config.messages and config.duplicate_filter:
         return
     printp(3)
 
     config.messages.append(message)
     await asyncio.sleep(randint(60, 300))
-    printp(event.chat.to_dict()['username'], private_channels_ids, config.monitoring_chats)
+
     printp(1, event.chat.to_dict()['username'] not in config.monitoring_chats, event.chat.to_dict()['id'] not in private_channels_ids.values())
     if not event.chat: return
 
