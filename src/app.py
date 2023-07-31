@@ -120,6 +120,63 @@ async def handler(event):
                 await client.send_message(entity = entity,message=message, parse_mode='markdown', link_preview=False)
         await asyncio.sleep(randint(60, 240))
 
+
+class ChatsIter:
+    def __init__(self, chats):
+        self.chats = chats
+        self.index = 0
+
+    def __aiter__(self):
+        self.index = 0
+        return self
+    
+    async def __anext__(self):
+        if self.index == len(self.chats):
+            raise StopAsyncIteration
+        
+        chat = self.chats[self.index]
+
+        try:
+            print(chat)
+            await client(JoinChannelRequest(chat))
+            if '+' in chat or 'joinchat' in chat:
+                chat_id = (await get_chat_info(chat))['id']
+                private_channels_ids[chat] = chat_id
+            print('+')
+            self.index += 1
+            return True
+        except InviteRequestSentError:
+            self.index += 1
+            return False
+        except ConnectionError:
+            return False
+        except (InviteHashExpiredError, ValueError, TypeError):
+            print('-')
+                        
+            try:
+                config.monitoring_chats.remove(chat)
+            except:
+                pass
+                        
+            try:
+                db.delete('monitoring_chats', 'chat_id', chat)
+            except:
+                pass
+
+            self.index += 1
+            return False
+        except ChannelPrivateError:
+            result = await client(ImportChatInviteRequest(chat[chat.index('/'):].replace('/', '').replace('+', '')))
+            result_dict = result.to_dict()
+            print('result_dict', result_dict)
+            if len(result_dict['chats']):
+                private_channels_ids[chat] = result_dict['chats'][0]['id']
+            self.index += 1
+            return True
+        finally:
+            await asyncio.sleep(480)
+
+
 async def check_chats():
     try:
         global chats
@@ -128,37 +185,7 @@ async def check_chats():
 
             if len(chat_set):
                 print(chat_set)
-                for chat in chat_set:
-                    try:
-                        print(chat)
-                        await client(JoinChannelRequest(chat))
-                        if '+' in chat or 'joinchat' in chat:
-                            chat_id = (await get_chat_info(chat))['id']
-                            private_channels_ids[chat] = chat_id
-                        print('+')
-                    except InviteRequestSentError:
-                        continue
-                    except (InviteHashExpiredError, ValueError, TypeError):
-                        print('-')
-                        
-                        try:
-                            config.monitoring_chats.remove(chat)
-                        except:
-                            pass
-                        
-                        try:
-                            db.delete('monitoring_chats', 'chat_id', chat)
-                        except:
-                            pass
-
-                        continue
-                    except ChannelPrivateError:
-                        result = await client(ImportChatInviteRequest(chat[chat.index('/'):].replace('/', '').replace('+', '')))
-                        result_dict = result.to_dict()
-                        print('result_dict', result_dict)
-                        if len(result_dict['chats']):
-                            private_channels_ids[chat] = result_dict['chats'][0]['id']
-                    await asyncio.sleep(480)
+                async for chat in ChatsIter(chat_set): pass
                 chats = config.monitoring_chats[:]
             
             to_delete = []
@@ -176,11 +203,13 @@ async def check_chats():
 
 
 async def start_handle():
-    try:
-        await client.run_until_disconnected()
-    except:
-        with open(f'{randint(1, 100000)}.txt', 'w') as file:
-            file.write(format_exc())
+    while True:
+        try:
+            await client.run_until_disconnected()
+        except:
+            with open(f'{randint(1, 100000)}.txt', 'w') as file:
+                file.write(format_exc() + ' next yeah')
+            continue
 
 
 async def start_bot():
