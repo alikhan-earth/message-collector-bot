@@ -185,7 +185,7 @@ async def check_chats():
 
             if len(chat_set):
                 print(chat_set)
-                async for chat in ChatsIter(chat_set): pass
+                async for chat in ChatsIter(list(chat_set)): pass
                 chats = config.monitoring_chats[:]
             
             to_delete = []
