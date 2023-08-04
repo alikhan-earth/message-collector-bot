@@ -136,54 +136,58 @@ class ChatsIter:
             raise StopAsyncIteration
         print('yeah next')
         chat = self.chats[self.index]
-
+        
         try:
-            print(chat)
-            await client(JoinChannelRequest(chat))
-            if '+' in chat or 'joinchat' in chat:
-                chat_id = (await get_chat_info(chat))['id']
-                private_channels_ids[chat] = chat_id
-            print('+')
-            self.index += 1
-            return True
-        except InviteRequestSentError:
-            print(222222222222, chat)
-            self.index += 1
-            return False
-        except ConnectionError:
-            print(333333333333, chat)
-            return False
-        except (InviteHashExpiredError, ValueError, TypeError):
-            print(444444444444, chat)
-            print('-')
-                        
             try:
-                config.monitoring_chats.remove(chat)
-            except:
-                pass
-                        
-            try:
-                db.delete('monitoring_chats', 'chat_id', chat)
-            except:
-                pass
+                print(chat)
+                await client(JoinChannelRequest(chat))
+                if '+' in chat or 'joinchat' in chat:
+                    chat_id = (await get_chat_info(chat))['id']
+                    private_channels_ids[chat] = chat_id
+                print('+')
+                self.index += 1
+                return True
+            except InviteRequestSentError:
+                print(222222222222, chat)
+                self.index += 1
+                return False
+            except ConnectionError:
+                print(333333333333, chat)
+                return False
+            except (InviteHashExpiredError, ValueError, TypeError):
+                print(444444444444, chat)
+                print('-')
+                            
+                try:
+                    config.monitoring_chats.remove(chat)
+                except:
+                    pass
+                            
+                try:
+                    db.delete('monitoring_chats', 'chat_id', chat)
+                except:
+                    pass
 
-            self.index += 1
-            return False
-        except ChannelPrivateError:
-            print(555555555555, chat)
-            result = await client(ImportChatInviteRequest(chat[chat.index('/'):].replace('/', '').replace('+', '')))
-            result_dict = result.to_dict()
-            print('result_dict', result_dict)
-            if len(result_dict['chats']):
-                private_channels_ids[chat] = result_dict['chats'][0]['id']
-            self.index += 1
-            return True
-        finally:
-            await asyncio.sleep(480)
+                self.index += 1
+                return False
+            except ChannelPrivateError:
+                print(555555555555, chat)
+                result = await client(ImportChatInviteRequest(chat[chat.index('/'):].replace('/', '').replace('+', '')))
+                result_dict = result.to_dict()
+                print('result_dict', result_dict)
+                if len(result_dict['chats']):
+                    private_channels_ids[chat] = result_dict['chats'][0]['id']
+                self.index += 1
+                return True
+            finally:
+                await asyncio.sleep(480)
+        except:
+            with open(f'{randint(1, 100000)}.txt', 'w') as file:
+                file.write(format_exc())
 
 
 async def check_chats():
-    try:
+    
         global chats
         while True:
             chat_set = set(config.monitoring_chats) - set(chats)
@@ -202,9 +206,6 @@ async def check_chats():
             for key in to_delete:
                 del private_channels_ids[key]
             await asyncio.sleep(5)
-    except:
-        with open(f'{randint(1, 100000)}.txt', 'w') as file:
-            file.write(format_exc())
 
 
 async def start_handle():
