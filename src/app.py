@@ -131,9 +131,10 @@ class ChatsIter:
         return self
     
     async def __anext__(self):
+        print(self.index)
         if self.index == len(self.chats):
             raise StopAsyncIteration
-        
+        print('yeah next')
         chat = self.chats[self.index]
 
         try:
@@ -146,11 +147,14 @@ class ChatsIter:
             self.index += 1
             return True
         except InviteRequestSentError:
+            print(222222222222, chat)
             self.index += 1
             return False
         except ConnectionError:
+            print(333333333333, chat)
             return False
         except (InviteHashExpiredError, ValueError, TypeError):
+            print(444444444444, chat)
             print('-')
                         
             try:
@@ -166,6 +170,7 @@ class ChatsIter:
             self.index += 1
             return False
         except ChannelPrivateError:
+            print(555555555555, chat)
             result = await client(ImportChatInviteRequest(chat[chat.index('/'):].replace('/', '').replace('+', '')))
             result_dict = result.to_dict()
             print('result_dict', result_dict)
@@ -185,7 +190,7 @@ async def check_chats():
 
             if len(chat_set):
                 print(chat_set)
-                async for chat in ChatsIter(list(chat_set)): pass
+                async for chat in ChatsIter(list(chat_set)): print('iteration')
                 chats = config.monitoring_chats[:]
             
             to_delete = []
