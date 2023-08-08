@@ -120,6 +120,11 @@ async def handler(event):
                 await client.send_message(entity = entity,message=message, parse_mode='markdown', link_preview=False)
         await asyncio.sleep(randint(60, 240))
 
+def printp(*vals):
+    print(*vals)
+    with open('ok.txt', 'a') as file:
+        [file.write(str(val)) for val in vals]
+
 
 class ChatsIter:
     def __init__(self, chats):
@@ -234,6 +239,9 @@ async def main():
     await asyncio.wait([f1, f2])
 
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
-loop.close()
+try:
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+    loop.close()
+except:
+    os.system('python3 app.py')
