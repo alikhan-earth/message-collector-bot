@@ -24,7 +24,7 @@ API_HASH = os.environ['API_HASH']
 chats = []
 private_channels_ids = {}
 
-client = TelegramClient('session_name', API_ID, API_HASH, system_version="4.16.30-vxALIKHANEEE")
+client = TelegramClient('session_name', API_ID, API_HASH, system_version="4.16.30-vxDMITRYJ")
 client.start()
 
 
